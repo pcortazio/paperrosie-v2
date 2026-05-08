@@ -10,14 +10,21 @@ import { WarningCallout } from "@/components/ui/warning-callout";
 import { calculateSupplierInsights } from "@/lib/calculations/suppliers";
 import { formatCurrency, formatQuantity } from "@/lib/formatting/currency";
 import { getPr2Material } from "@/lib/supabase/queries/materials";
+import { listPr2PackagingMaterialsForMaterial } from "@/lib/supabase/queries/packaging";
+import { listPr2ProductMaterialsForMaterial } from "@/lib/supabase/queries/products";
 import { listPr2PurchaseItemsForMaterial } from "@/lib/supabase/queries/purchases";
 import { listPr2StockMovementsForMaterial } from "@/lib/supabase/queries/stock-movements";
 import { createClient } from "@/lib/supabase/server";
 import type {
   Pr2Material,
   Pr2MaterialCategory,
+  Pr2Packaging,
+  Pr2PackagingMaterial,
   Pr2Purchase,
   Pr2PurchaseItem,
+  Pr2Product,
+  Pr2ProductMaterial,
+  Pr2ProductVariant,
   Pr2StockMovement,
   Pr2Supplier,
   Pr2Unit,
@@ -33,6 +40,17 @@ type MaterialPurchaseItem = Pr2PurchaseItem & {
   purchase: (Pr2Purchase & { supplier: Pr2Supplier | null }) | null;
 };
 
+type MaterialProductLine = Pr2ProductMaterial & {
+  product: Pr2Product | null;
+  unit: Pr2Unit | null;
+  variant: Pr2ProductVariant | null;
+};
+
+type MaterialPackagingLine = Pr2PackagingMaterial & {
+  packaging: Pr2Packaging | null;
+  unit: Pr2Unit | null;
+};
+
 type MaterialDetailPageProps = {
   params: Promise<{ id: string }>;
 };
@@ -40,10 +58,18 @@ type MaterialDetailPageProps = {
 export default async function MaterialDetailPage({ params }: MaterialDetailPageProps) {
   const { id } = await params;
   const client = await createClient();
-  const [{ data, error }, { data: purchaseItems }, { data: stockMovements }] = await Promise.all([
+  const [
+    { data, error },
+    { data: purchaseItems },
+    { data: stockMovements },
+    { data: productLines },
+    { data: packagingLines },
+  ] = await Promise.all([
     getPr2Material(client, id),
     listPr2PurchaseItemsForMaterial(client, id),
     listPr2StockMovementsForMaterial(client, id),
+    listPr2ProductMaterialsForMaterial(client, id),
+    listPr2PackagingMaterialsForMaterial(client, id),
   ]);
 
   if (error || !data) notFound();
@@ -51,6 +77,8 @@ export default async function MaterialDetailPage({ params }: MaterialDetailPageP
   const material = data as unknown as MaterialDetailRow;
   const purchases = (purchaseItems ?? []) as unknown as MaterialPurchaseItem[];
   const movements = (stockMovements ?? []) as Pr2StockMovement[];
+  const productUsage = (productLines ?? []) as unknown as MaterialProductLine[];
+  const packagingUsage = (packagingLines ?? []) as unknown as MaterialPackagingLine[];
   const insights = calculateSupplierInsights(
     purchases
       .filter((item) => item.purchase?.status === "received" && item.purchase.supplier)
@@ -178,10 +206,33 @@ export default async function MaterialDetailPage({ params }: MaterialDetailPageP
       ) : (
         <EmptyState title="Stock movement history" />
       )}
-      <div className="grid gap-5 lg:grid-cols-2">
+      {productUsage.length ? (
+        <DataTable columns={["Product", "Variant", "Quantity", "Unit"]}>
+          {productUsage.map((line) => (
+            <tr key={line.id}>
+              <td className="px-4 py-3">{line.product?.name ?? "-"}</td>
+              <td className="px-4 py-3">{line.variant?.name ?? "Base"}</td>
+              <td className="px-4 py-3">{formatQuantity(line.quantity)}</td>
+              <td className="px-4 py-3">{line.unit?.abbreviation ?? "-"}</td>
+            </tr>
+          ))}
+        </DataTable>
+      ) : (
         <EmptyState title="Products using this material" />
+      )}
+      {packagingUsage.length ? (
+        <DataTable columns={["Packaging", "Quantity", "Unit"]}>
+          {packagingUsage.map((line) => (
+            <tr key={line.id}>
+              <td className="px-4 py-3">{line.packaging?.name ?? "-"}</td>
+              <td className="px-4 py-3">{formatQuantity(line.quantity)}</td>
+              <td className="px-4 py-3">{line.unit?.abbreviation ?? "-"}</td>
+            </tr>
+          ))}
+        </DataTable>
+      ) : (
         <EmptyState title="Packaging using this material" />
-      </div>
+      )}
     </div>
   );
 }

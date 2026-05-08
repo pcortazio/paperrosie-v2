@@ -132,6 +132,7 @@ export type Pr2ProductMaterial = ActiveRow & {
 export type Pr2Packaging = ActiveRow & {
   name: string;
   description: string | null;
+  image_url: string | null;
   margin_percent: Numeric;
 };
 

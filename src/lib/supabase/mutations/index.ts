@@ -3,5 +3,7 @@ export * from "@/lib/supabase/mutations/lookups";
 export * from "@/lib/supabase/mutations/materials";
 export * from "@/lib/supabase/mutations/inventory";
 export * from "@/lib/supabase/mutations/purchases";
+export * from "@/lib/supabase/mutations/products";
+export * from "@/lib/supabase/mutations/packaging";
 export * from "@/lib/supabase/mutations/settings";
 export * from "@/lib/supabase/mutations/suppliers";
