@@ -231,6 +231,7 @@ set search_path = public
 as $$
 declare
   pr2_purchase_status public.pr2_purchase_status;
+  pr2_material record;
 begin
   select status
   into pr2_purchase_status
@@ -245,6 +246,14 @@ begin
   update public.pr2_purchases
   set status = 'cancelled'
   where id = pr2_purchase_id;
+
+  for pr2_material in
+    select distinct material_id
+    from public.pr2_purchase_items
+    where purchase_id = pr2_purchase_id
+  loop
+    perform public.pr2_recalculate_material_reference_cost(pr2_material.material_id);
+  end loop;
 end;
 $$;
 

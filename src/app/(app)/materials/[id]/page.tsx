@@ -1,17 +1,24 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { DataTable } from "@/components/tables/data-table";
 import { ActiveStateBadge } from "@/components/ui/active-state-badge";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { WarningCallout } from "@/components/ui/warning-callout";
+import { calculateSupplierInsights } from "@/lib/calculations/suppliers";
 import { formatCurrency, formatQuantity } from "@/lib/formatting/currency";
 import { getPr2Material } from "@/lib/supabase/queries/materials";
+import { listPr2PurchaseItemsForMaterial } from "@/lib/supabase/queries/purchases";
+import { listPr2StockMovementsForMaterial } from "@/lib/supabase/queries/stock-movements";
 import { createClient } from "@/lib/supabase/server";
 import type {
   Pr2Material,
   Pr2MaterialCategory,
+  Pr2Purchase,
+  Pr2PurchaseItem,
+  Pr2StockMovement,
   Pr2Supplier,
   Pr2Unit,
 } from "@/types/database";
@@ -22,6 +29,10 @@ type MaterialDetailRow = Pr2Material & {
   unit: Pr2Unit | null;
 };
 
+type MaterialPurchaseItem = Pr2PurchaseItem & {
+  purchase: (Pr2Purchase & { supplier: Pr2Supplier | null }) | null;
+};
+
 type MaterialDetailPageProps = {
   params: Promise<{ id: string }>;
 };
@@ -29,13 +40,28 @@ type MaterialDetailPageProps = {
 export default async function MaterialDetailPage({ params }: MaterialDetailPageProps) {
   const { id } = await params;
   const client = await createClient();
-  const { data, error } = await getPr2Material(client, id);
+  const [{ data, error }, { data: purchaseItems }, { data: stockMovements }] = await Promise.all([
+    getPr2Material(client, id),
+    listPr2PurchaseItemsForMaterial(client, id),
+    listPr2StockMovementsForMaterial(client, id),
+  ]);
 
-  if (error || !data) {
-    notFound();
-  }
+  if (error || !data) notFound();
 
   const material = data as unknown as MaterialDetailRow;
+  const purchases = (purchaseItems ?? []) as unknown as MaterialPurchaseItem[];
+  const movements = (stockMovements ?? []) as Pr2StockMovement[];
+  const insights = calculateSupplierInsights(
+    purchases
+      .filter((item) => item.purchase?.status === "received" && item.purchase.supplier)
+      .map((item) => ({
+        orderedAt: item.purchase!.ordered_at,
+        receivedAt: item.purchase!.received_at,
+        supplierId: item.purchase!.supplier!.id,
+        supplierName: item.purchase!.supplier!.name,
+        unitCost: item.unit_cost,
+      })),
+  );
 
   return (
     <div className="space-y-5">
@@ -64,11 +90,11 @@ export default async function MaterialDetailPage({ params }: MaterialDetailPageP
           <dl className="grid gap-4 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-muted">Category</dt>
-              <dd className="mt-1 text-foreground">{material.category?.name ?? "—"}</dd>
+              <dd className="mt-1 text-foreground">{material.category?.name ?? "-"}</dd>
             </div>
             <div>
               <dt className="text-muted">Unit</dt>
-              <dd className="mt-1 text-foreground">{material.unit?.name ?? "—"}</dd>
+              <dd className="mt-1 text-foreground">{material.unit?.name ?? "-"}</dd>
             </div>
             <div>
               <dt className="text-muted">Current stock</dt>
@@ -80,39 +106,79 @@ export default async function MaterialDetailPage({ params }: MaterialDetailPageP
             </div>
             <div>
               <dt className="text-muted">Reference cost</dt>
-              <dd className="mt-1 text-foreground">
-                {formatCurrency(material.reference_cost_per_unit)}
-              </dd>
+              <dd className="mt-1 text-foreground">{formatCurrency(material.reference_cost_per_unit)}</dd>
             </div>
             <div>
               <dt className="text-muted">Preferred supplier</dt>
-              <dd className="mt-1 text-foreground">
-                {material.preferred_supplier?.name ?? "—"}
-              </dd>
+              <dd className="mt-1 text-foreground">{material.preferred_supplier?.name ?? "-"}</dd>
             </div>
             <div className="sm:col-span-2">
               <dt className="text-muted">Notes</dt>
-              <dd className="mt-1 whitespace-pre-wrap text-foreground">{material.notes || "—"}</dd>
+              <dd className="mt-1 whitespace-pre-wrap text-foreground">{material.notes || "-"}</dd>
             </div>
           </dl>
         </Card>
         <div className="grid gap-3">
           <Card>
             <p className="text-sm text-muted">Best price</p>
-            <p className="mt-2 text-sm text-foreground">—</p>
+            <p className="mt-2 text-sm text-foreground">
+              {insights.bestPrice
+                ? `${insights.bestPrice.supplierName} - ${formatCurrency(insights.bestPrice.value)}`
+                : "-"}
+            </p>
           </Card>
           <Card>
             <p className="text-sm text-muted">Fastest delivery</p>
-            <p className="mt-2 text-sm text-foreground">—</p>
+            <p className="mt-2 text-sm text-foreground">
+              {insights.fastestDelivery
+                ? `${insights.fastestDelivery.supplierName} - ${insights.fastestDelivery.days} days`
+                : "-"}
+            </p>
           </Card>
           <Card>
             <p className="text-sm text-muted">Average delivery</p>
-            <p className="mt-2 text-sm text-foreground">—</p>
+            <p className="mt-2 text-sm text-foreground">
+              {insights.averageDeliveryDays[0]
+                ? `${insights.averageDeliveryDays[0].supplierName} - ${insights.averageDeliveryDays[0].days} days`
+                : "-"}
+            </p>
           </Card>
         </div>
       </div>
-      <div className="grid gap-5 lg:grid-cols-3">
+      {purchases.length ? (
+        <DataTable columns={["Purchase", "Supplier", "Ordered", "Received", "Qty", "Unit cost", "Total"]}>
+          {purchases.map((item) => (
+            <tr key={item.id}>
+              <td className="px-4 py-3">{item.purchase?.purchase_number ?? "-"}</td>
+              <td className="px-4 py-3">{item.purchase?.supplier?.name ?? "-"}</td>
+              <td className="px-4 py-3">{item.purchase?.ordered_at ?? "-"}</td>
+              <td className="px-4 py-3">{item.purchase?.received_at ?? "-"}</td>
+              <td className="px-4 py-3">{formatQuantity(item.quantity)}</td>
+              <td className="px-4 py-3">{formatCurrency(item.unit_cost)}</td>
+              <td className="px-4 py-3">{formatCurrency(item.total_cost)}</td>
+            </tr>
+          ))}
+        </DataTable>
+      ) : (
         <EmptyState title="Purchase history" />
+      )}
+      {movements.length ? (
+        <DataTable columns={["Date", "Type", "Change", "Previous", "New", "Source"]}>
+          {movements.map((movement) => (
+            <tr key={movement.id}>
+              <td className="px-4 py-3">{new Date(movement.created_at).toLocaleDateString("en-CA")}</td>
+              <td className="px-4 py-3">{movement.type}</td>
+              <td className="px-4 py-3">{formatQuantity(movement.quantity_change)}</td>
+              <td className="px-4 py-3">{formatQuantity(movement.previous_quantity)}</td>
+              <td className="px-4 py-3">{formatQuantity(movement.new_quantity)}</td>
+              <td className="px-4 py-3">{movement.source_type}</td>
+            </tr>
+          ))}
+        </DataTable>
+      ) : (
+        <EmptyState title="Stock movement history" />
+      )}
+      <div className="grid gap-5 lg:grid-cols-2">
         <EmptyState title="Products using this material" />
         <EmptyState title="Packaging using this material" />
       </div>

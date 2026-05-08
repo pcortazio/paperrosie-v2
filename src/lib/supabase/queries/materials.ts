@@ -47,6 +47,10 @@ export async function listPr2LowStockMaterials(client: Pr2Client) {
   return client.from("pr2_low_stock_materials_view").select("*").order("name");
 }
 
+export async function listActivePr2Materials(client: Pr2Client) {
+  return client.from("pr2_materials").select("*").eq("active", true).order("name");
+}
+
 export async function getPr2Material(client: Pr2Client, id: string) {
   return client
     .from("pr2_materials")

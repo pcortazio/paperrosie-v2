@@ -8,7 +8,7 @@ export type Pr2MaterialForm = {
   name: string;
   category_id: string | null;
   unit_id: string;
-  current_stock: number;
+  current_stock?: number;
   minimum_stock: number;
   reference_cost_per_unit: number;
   preferred_supplier_id: string | null;

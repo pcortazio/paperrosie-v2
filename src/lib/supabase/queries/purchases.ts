@@ -53,3 +53,7 @@ export async function listPr2PurchaseItemsForMaterial(client: Pr2Client, materia
     .eq("active", true)
     .order("created_at", { ascending: false });
 }
+
+export async function getPr2PurchaseItem(client: Pr2Client, id: string) {
+  return client.from("pr2_purchase_items").select("*").eq("id", id).single();
+}

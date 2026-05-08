@@ -62,16 +62,6 @@ export function MaterialForm({
             </Select>
           </label>
           <label className="space-y-2 text-sm font-medium">
-            <span>Current stock</span>
-            <Input
-              defaultValue={material?.current_stock ?? 0}
-              min="0"
-              name="current_stock"
-              step="0.001"
-              type="number"
-            />
-          </label>
-          <label className="space-y-2 text-sm font-medium">
             <span>Minimum stock</span>
             <Input
               defaultValue={material?.minimum_stock ?? 0}

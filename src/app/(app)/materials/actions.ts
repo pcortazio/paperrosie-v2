@@ -15,7 +15,6 @@ import { createAuthenticatedClient } from "@/lib/supabase/auth";
 function materialFormData(formData: FormData) {
   return {
     category_id: readNullableString(formData, "category_id"),
-    current_stock: readNumber(formData, "current_stock"),
     minimum_stock: readNumber(formData, "minimum_stock"),
     name: readRequiredString(formData, "name"),
     notes: readNullableString(formData, "notes"),
@@ -27,7 +26,10 @@ function materialFormData(formData: FormData) {
 
 export async function createMaterialAction(formData: FormData) {
   const client = await createAuthenticatedClient();
-  const { error } = await createPr2Material(client, materialFormData(formData));
+  const { error } = await createPr2Material(client, {
+    ...materialFormData(formData),
+    current_stock: 0,
+  });
 
   if (error) {
     throw new Error(error.message);
