@@ -6,6 +6,9 @@ import { getPr2Quote } from "@/lib/supabase/queries/quotes";
 import { createClient } from "@/lib/supabase/server";
 import type { Pr2Customer, Pr2Packaging, Pr2Product, Pr2ProductVariant, Pr2Quote, Pr2QuoteItem } from "@/types/database";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 type QuotePdfRow = Pr2Quote & {
   customer: Pr2Customer | null;
   items: Array<Pr2QuoteItem & {
@@ -21,7 +24,7 @@ type QuotePdfRouteProps = {
 
 export async function GET(request: NextRequest, { params }: QuotePdfRouteProps) {
   const { id } = await params;
-  const language = request.nextUrl.searchParams.get("lang") === "pt" ? "pt" : "en";
+  const language = ["br", "pt"].includes(request.nextUrl.searchParams.get("lang") ?? "") ? "br" : "en";
   const client = await createClient();
   const { data, error } = await getPr2Quote(client, id);
 
