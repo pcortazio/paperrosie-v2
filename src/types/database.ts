@@ -57,6 +57,7 @@ export type Pr2Supplier = ActiveRow & {
 
 export type Pr2Customer = ActiveRow & {
   name: string;
+  company: string | null;
   email: string | null;
   phone: string | null;
   notes: string | null;

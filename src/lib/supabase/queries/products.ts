@@ -25,6 +25,14 @@ export async function listPr2Products(client: Pr2Client, options: ListPr2Product
   return query;
 }
 
+export async function listActivePr2ProductsForQuotes(client: Pr2Client) {
+  return client
+    .from("pr2_products")
+    .select("*, variants:pr2_product_variants(*)")
+    .eq("active", true)
+    .order("name");
+}
+
 export async function getPr2Product(client: Pr2Client, id: string) {
   return client
     .from("pr2_products")
