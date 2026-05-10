@@ -1,3 +1,7 @@
-export function calculateShoppingListNeeds() {
-  throw new Error("calculateShoppingListNeeds is a Phase 3 implementation placeholder.");
-}
+export {
+  calculateLowStockMaterials,
+  calculateMaterialShortages,
+  calculateOrderMaterialRequirements,
+  generateShoppingList,
+  groupShoppingListBySupplier,
+} from "@/lib/planning/materials";

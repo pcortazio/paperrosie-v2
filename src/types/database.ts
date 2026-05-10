@@ -317,6 +317,10 @@ export type Database = {
         Args: { pr2_inventory_count_id: string };
         Returns: unknown;
       };
+      pr2_complete_order: {
+        Args: { pr2_order_id: string };
+        Returns: unknown;
+      };
     };
     Enums: Pr2Enums;
     CompositeTypes: Record<string, never>;

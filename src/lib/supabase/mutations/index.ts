@@ -1,6 +1,7 @@
 export * from "@/lib/supabase/mutations/active-state";
 export * from "@/lib/supabase/mutations/lookups";
 export * from "@/lib/supabase/mutations/materials";
+export * from "@/lib/supabase/mutations/orders";
 export * from "@/lib/supabase/mutations/customers";
 export * from "@/lib/supabase/mutations/inventory";
 export * from "@/lib/supabase/mutations/purchases";

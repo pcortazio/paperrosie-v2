@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { addQuoteItemAction, setQuoteItemActiveStateAction } from "@/app/(app)/quotes/actions";
+import { CreateOrderFromQuoteButton } from "@/components/orders/create-order-from-quote-button";
 import { PdfLanguageSelector } from "@/components/quotes/pdf-language-selector";
 import { PricingSnapshotViewer } from "@/components/quotes/pricing-snapshot-viewer";
 import { QuoteItemEditor } from "@/components/quotes/quote-item-editor";
@@ -15,6 +16,7 @@ import { WarningCallout } from "@/components/ui/warning-callout";
 import { formatCurrency } from "@/lib/formatting/currency";
 import { listActivePr2Packaging } from "@/lib/supabase/queries/packaging";
 import { listActivePr2ProductsForQuotes } from "@/lib/supabase/queries/products";
+import { getPr2OrderForQuote } from "@/lib/supabase/queries/orders";
 import { getPr2Quote } from "@/lib/supabase/queries/quotes";
 import { createClient } from "@/lib/supabase/server";
 import type { Pr2Customer, Pr2Packaging, Pr2Product, Pr2ProductVariant, Pr2Quote, Pr2QuoteItem } from "@/types/database";
@@ -33,10 +35,11 @@ type QuoteDetailPageProps = { params: Promise<{ id: string }> };
 export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) {
   const { id } = await params;
   const client = await createClient();
-  const [{ data, error }, { data: products }, { data: packaging }] = await Promise.all([
+  const [{ data, error }, { data: products }, { data: packaging }, { data: existingOrder }] = await Promise.all([
     getPr2Quote(client, id),
     listActivePr2ProductsForQuotes(client),
     listActivePr2Packaging(client),
+    getPr2OrderForQuote(client, id),
   ]);
   if (error || !data) notFound();
   const quote = data as unknown as QuoteDetailRow;
@@ -97,9 +100,13 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
         <p className="whitespace-pre-wrap text-sm text-muted">{quote.notes || "-"}</p>
       </Card>
       {quote.items[0] ? <PricingSnapshotViewer snapshot={quote.items[0].pricing_snapshot} /> : null}
-      <button className="h-10 cursor-not-allowed rounded-md border border-border bg-zinc-50 px-4 text-sm text-muted" disabled type="button">
-        Create order from quote - next phase
-      </button>
+      {existingOrder ? (
+        <Link className="inline-flex h-10 items-center rounded-md border border-border bg-surface px-4 text-sm font-medium shadow-sm hover:bg-zinc-50" href={`/orders/${existingOrder.id}`}>
+          Open linked order
+        </Link>
+      ) : (
+        <CreateOrderFromQuoteButton disabled={quote.status !== "approved"} quoteId={quote.id} />
+      )}
     </div>
   );
 }
