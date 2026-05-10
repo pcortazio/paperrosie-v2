@@ -30,8 +30,8 @@ export function LookupSection({
   withAbbreviation = false,
 }: LookupSectionProps) {
   return (
-    <Card className="space-y-4">
-      <h2 className="text-base font-medium">{title}</h2>
+    <Card className="space-y-3 p-4">
+      <h2 className="text-sm font-semibold">{title}</h2>
       <form action={createAction} className="grid gap-2 sm:grid-cols-[1fr_120px_auto]">
         <Input name="name" placeholder="Name" required />
         {withAbbreviation ? (
@@ -39,11 +39,11 @@ export function LookupSection({
         ) : (
           <span className="hidden sm:block" />
         )}
-        <SubmitButton pendingLabel="Adding">Add</SubmitButton>
+        <SubmitButton pendingLabel="Adding" variant="secondary">Add</SubmitButton>
       </form>
-      <div className="divide-y divide-border rounded-md border border-border">
+      <div className="divide-y divide-border rounded-xl border border-border/80 bg-zinc-50/30">
         {items.map((item) => (
-          <div className="grid gap-2 p-3 lg:grid-cols-[1fr_120px_auto_auto]" key={item.id}>
+          <div className="grid items-center gap-2 p-2 lg:grid-cols-[1fr_120px_auto_auto]" key={item.id}>
             <form action={updateAction} className="contents">
               <input name="id" type="hidden" value={item.id} />
               <Input defaultValue={item.name} name="name" required />
@@ -52,13 +52,13 @@ export function LookupSection({
               ) : (
                 <span className="hidden lg:block" />
               )}
-              <SubmitButton pendingLabel="Saving">Save</SubmitButton>
+              <SubmitButton pendingLabel="Saving" variant="ghost">Save</SubmitButton>
             </form>
             <form action={activeAction}>
               <input name="id" type="hidden" value={item.id} />
               <input name="table" type="hidden" value={table} />
               <input name="active" type="hidden" value={item.active ? "false" : "true"} />
-              <SubmitButton pendingLabel={item.active ? "Deactivating" : "Reactivating"}>
+              <SubmitButton pendingLabel={item.active ? "Deactivating" : "Reactivating"} variant="ghost">
                 {item.active ? "Deactivate" : "Reactivate"}
               </SubmitButton>
             </form>

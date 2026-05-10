@@ -2,6 +2,7 @@ import { PurchaseSuggestionCard } from "@/components/planning/purchase-suggestio
 import { ShoppingListGroup } from "@/components/planning/shopping-list-group";
 import { FilterBar } from "@/components/tables/filter-bar";
 import { SearchInput } from "@/components/tables/search-input";
+import { ShowInactiveToggle } from "@/components/tables/show-inactive-toggle";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
@@ -108,11 +109,7 @@ export default async function ShoppingListPage({ searchParams }: ShoppingListPag
             <option value="low">Low stock only</option>
             <option value="orders">Orders only</option>
           </Select>
-          <Select defaultValue={activeState} name="activeState">
-            <option value="active">Active materials</option>
-            <option value="inactive">Inactive materials</option>
-            <option value="all">All materials</option>
-          </Select>
+          <ShowInactiveToggle defaultChecked={activeState === "all"} />
           <Button type="submit" variant="secondary">Apply</Button>
         </FilterBar>
       </form>

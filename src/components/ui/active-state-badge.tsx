@@ -5,5 +5,5 @@ type ActiveStateBadgeProps = {
 };
 
 export function ActiveStateBadge({ active }: ActiveStateBadgeProps) {
-  return active ? <Badge tone="accent">Active</Badge> : <Badge tone="warning">Inactive</Badge>;
+  return active ? <Badge tone="neutral">On</Badge> : <Badge tone="warning">Off</Badge>;
 }

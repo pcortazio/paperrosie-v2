@@ -30,7 +30,7 @@ export function DataTable({ columns, children, emptyTitle, className }: DataTabl
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-border [&_tr]:transition-colors [&_tr:hover]:bg-zinc-50/65 [&_td]:py-2.5">
+          <tbody className="divide-y divide-border align-middle [&_tr]:align-middle [&_tr]:transition-colors [&_tr:hover]:bg-zinc-50/65 [&_td]:py-2.5 [&_td]:align-middle">
             {children}
           </tbody>
         </table>

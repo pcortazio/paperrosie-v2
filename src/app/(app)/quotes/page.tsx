@@ -7,6 +7,7 @@ import { QuoteStatusBadge } from "@/components/quotes/quote-status-badge";
 import { DataTable } from "@/components/tables/data-table";
 import { FilterBar } from "@/components/tables/filter-bar";
 import { SearchInput } from "@/components/tables/search-input";
+import { ShowInactiveToggle } from "@/components/tables/show-inactive-toggle";
 import { ActiveStateBadge } from "@/components/ui/active-state-badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -58,18 +59,14 @@ export default async function QuotesPage({ searchParams }: QuotesPageProps) {
             <option value="approved">Approved</option>
             <option value="cancelled">Cancelled</option>
           </Select>
-          <Select defaultValue={activeState} name="activeState">
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="all">All</option>
-          </Select>
+          <ShowInactiveToggle defaultChecked={activeState === "all"} />
           <Button type="submit" variant="secondary">Apply</Button>
           <input defaultValue={dateFrom} name="dateFrom" type="date" />
           <input defaultValue={dateTo} name="dateTo" type="date" />
         </FilterBar>
       </form>
       {quotes.length ? (
-        <DataTable columns={["Quote #", "Customer", "Status", "Total", "Created", "Active", "Actions"]}>
+        <DataTable columns={["Quote #", "Customer", "Status", "Total", "Created", "State", "Actions"]}>
           {quotes.map((quote) => (
             <tr key={quote.id}>
               <td className="px-4 py-3 font-medium"><Link className="hover:text-accent" href={`/quotes/${quote.id}`}>{quote.quote_number}</Link></td>
@@ -78,10 +75,10 @@ export default async function QuotesPage({ searchParams }: QuotesPageProps) {
               <td className="px-4 py-3 text-muted">{formatCurrency(quote.total)}</td>
               <td className="px-4 py-3 text-muted">{new Date(quote.created_at).toLocaleDateString("en-CA")}</td>
               <td className="px-4 py-3"><ActiveStateBadge active={quote.active} /></td>
-              <td className="flex gap-2 px-4 py-3">
+              <td className="px-4 py-3"><div className="flex items-center gap-2">
                 <Link className="text-sm font-medium text-accent hover:underline" href={`/quotes/${quote.id}`}>View</Link>
                 <ActiveStateForm action={setQuoteActiveStateAction} active={quote.active} id={quote.id} />
-              </td>
+              </div></td>
             </tr>
           ))}
         </DataTable>

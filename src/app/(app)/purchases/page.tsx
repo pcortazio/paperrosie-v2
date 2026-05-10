@@ -5,6 +5,7 @@ import { setPurchaseActiveStateAction } from "@/app/(app)/purchases/actions";
 import { DataTable } from "@/components/tables/data-table";
 import { FilterBar } from "@/components/tables/filter-bar";
 import { SearchInput } from "@/components/tables/search-input";
+import { ShowInactiveToggle } from "@/components/tables/show-inactive-toggle";
 import { ActiveStateBadge } from "@/components/ui/active-state-badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -82,11 +83,7 @@ export default async function PurchasesPage({ searchParams }: PurchasesPageProps
             <option value="received">Received</option>
             <option value="cancelled">Cancelled</option>
           </Select>
-          <Select defaultValue={activeState} name="activeState">
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="all">All</option>
-          </Select>
+          <ShowInactiveToggle defaultChecked={activeState === "all"} />
           <Button type="submit" variant="secondary">Apply</Button>
           <input defaultValue={orderedFrom} name="orderedFrom" type="date" />
           <input defaultValue={orderedTo} name="orderedTo" type="date" />
@@ -95,7 +92,7 @@ export default async function PurchasesPage({ searchParams }: PurchasesPageProps
         </FilterBar>
       </form>
       {purchases.length ? (
-        <DataTable columns={["Purchase #", "Supplier", "Ordered", "Received", "Status", "Total", "Active", "Actions"]}>
+        <DataTable columns={["Purchase #", "Supplier", "Ordered", "Received", "Status", "Total", "State", "Actions"]}>
           {purchases.map((purchase) => {
             const total = purchase.items.reduce((sum, item) => sum + item.total_cost, 0);
             return (
@@ -109,10 +106,10 @@ export default async function PurchasesPage({ searchParams }: PurchasesPageProps
                 <td className="px-4 py-3"><StatusBadge tone={purchase.status === "cancelled" ? "warning" : purchase.status === "received" ? "accent" : "neutral"}>{purchase.status}</StatusBadge></td>
                 <td className="px-4 py-3 text-muted">{formatCurrency(total)}</td>
                 <td className="px-4 py-3"><ActiveStateBadge active={purchase.active} /></td>
-                <td className="flex gap-2 px-4 py-3">
+                <td className="px-4 py-3"><div className="flex items-center gap-2">
                   <Link className="text-sm font-medium text-accent hover:underline" href={`/purchases/${purchase.id}`}>View</Link>
                   <ActiveStateForm action={setPurchaseActiveStateAction} active={purchase.active} id={purchase.id} />
-                </td>
+                </div></td>
               </tr>
             );
           })}

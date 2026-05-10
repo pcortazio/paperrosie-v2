@@ -4,11 +4,11 @@ import { ActiveStateForm } from "@/components/forms/active-state-form";
 import { DataTable } from "@/components/tables/data-table";
 import { FilterBar } from "@/components/tables/filter-bar";
 import { SearchInput } from "@/components/tables/search-input";
+import { ShowInactiveToggle } from "@/components/tables/show-inactive-toggle";
 import { ActiveStateBadge } from "@/components/ui/active-state-badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
-import { Select } from "@/components/ui/select";
 import { firstParam, type PageSearchParams } from "@/lib/routing/search-params";
 import { createClient } from "@/lib/supabase/server";
 import { listPr2SuppliersFiltered } from "@/lib/supabase/queries/suppliers";
@@ -48,18 +48,14 @@ export default async function SuppliersPage({ searchParams }: SuppliersPageProps
       <form className="space-y-3">
         <FilterBar>
           <SearchInput defaultValue={search} placeholder="Search suppliers" />
-          <Select defaultValue={activeState} name="activeState">
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="all">All</option>
-          </Select>
+          <ShowInactiveToggle defaultChecked={activeState === "all"} />
           <Button type="submit" variant="secondary">
             Apply
           </Button>
         </FilterBar>
       </form>
       {suppliers && suppliers.length > 0 ? (
-        <DataTable columns={["Name", "Website", "Status", "Actions"]}>
+        <DataTable columns={["Name", "Website", "State", "Actions"]}>
           {suppliers.map((supplier) => (
             <tr className="align-top" key={supplier.id}>
               <td className="px-4 py-3 font-medium text-foreground">{supplier.name}</td>
@@ -75,7 +71,7 @@ export default async function SuppliersPage({ searchParams }: SuppliersPageProps
               <td className="px-4 py-3">
                 <ActiveStateBadge active={supplier.active} />
               </td>
-              <td className="flex gap-2 px-4 py-3">
+              <td className="px-4 py-3"><div className="flex items-center gap-2">
                 <Link className="text-sm font-medium text-accent hover:underline" href={`/suppliers/${supplier.id}/edit`}>
                   Edit
                 </Link>
@@ -84,7 +80,7 @@ export default async function SuppliersPage({ searchParams }: SuppliersPageProps
                   active={supplier.active}
                   id={supplier.id}
                 />
-              </td>
+              </div></td>
             </tr>
           ))}
         </DataTable>

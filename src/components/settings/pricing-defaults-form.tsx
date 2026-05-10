@@ -44,10 +44,10 @@ export function PricingDefaultsForm({ action, value }: PricingDefaultsFormProps)
   const current = readDefaults(value);
 
   return (
-    <Card className="space-y-4">
-      <h2 className="text-base font-medium">Pricing defaults</h2>
-      <form action={action} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <label className="space-y-2 text-sm font-medium">
+    <Card className="space-y-3 p-4">
+      <h2 className="text-sm font-semibold">Pricing defaults</h2>
+      <form action={action} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(5,minmax(0,1fr))_auto]">
+        <label className="space-y-1.5">
           <span>Product margin %</span>
           <Input
             defaultValue={current.default_product_margin_percent}
@@ -57,7 +57,7 @@ export function PricingDefaultsForm({ action, value }: PricingDefaultsFormProps)
             type="number"
           />
         </label>
-        <label className="space-y-2 text-sm font-medium">
+        <label className="space-y-1.5">
           <span>Packaging margin %</span>
           <Input
             defaultValue={current.default_packaging_margin_percent}
@@ -67,7 +67,7 @@ export function PricingDefaultsForm({ action, value }: PricingDefaultsFormProps)
             type="number"
           />
         </label>
-        <label className="space-y-2 text-sm font-medium">
+        <label className="space-y-1.5">
           <span>Platform fee %</span>
           <Input
             defaultValue={current.platform_fee_percent}
@@ -77,7 +77,7 @@ export function PricingDefaultsForm({ action, value }: PricingDefaultsFormProps)
             type="number"
           />
         </label>
-        <label className="space-y-2 text-sm font-medium">
+        <label className="space-y-1.5">
           <span>Fixed fee</span>
           <Input
             defaultValue={current.platform_fee_fixed}
@@ -87,7 +87,7 @@ export function PricingDefaultsForm({ action, value }: PricingDefaultsFormProps)
             type="number"
           />
         </label>
-        <label className="space-y-2 text-sm font-medium">
+        <label className="space-y-1.5">
           <span>Rounding</span>
           <Input
             defaultValue={current.rounding_increment}
@@ -97,8 +97,8 @@ export function PricingDefaultsForm({ action, value }: PricingDefaultsFormProps)
             type="number"
           />
         </label>
-        <div className="sm:col-span-2 lg:col-span-5">
-          <SubmitButton>Save pricing defaults</SubmitButton>
+        <div className="self-end sm:col-span-2 lg:col-span-1">
+          <SubmitButton variant="secondary">Save</SubmitButton>
         </div>
       </form>
     </Card>

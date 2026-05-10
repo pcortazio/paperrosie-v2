@@ -5,6 +5,7 @@ import { setProductActiveStateAction } from "@/app/(app)/products/actions";
 import { DataTable } from "@/components/tables/data-table";
 import { FilterBar } from "@/components/tables/filter-bar";
 import { SearchInput } from "@/components/tables/search-input";
+import { ShowInactiveToggle } from "@/components/tables/show-inactive-toggle";
 import { ActiveStateBadge } from "@/components/ui/active-state-badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -61,16 +62,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             <option value="">All categories</option>
             {(categories ?? []).map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
           </Select>
-          <Select defaultValue={activeState} name="activeState">
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="all">All</option>
-          </Select>
+          <ShowInactiveToggle defaultChecked={activeState === "all"} />
           <Button type="submit" variant="secondary">Apply</Button>
         </FilterBar>
       </form>
       {products.length ? (
-        <DataTable columns={["Image", "Product", "Category", "Suggested price", "Active", "Actions"]}>
+        <DataTable columns={["Image", "Product", "Category", "Suggested price", "State", "Actions"]}>
           {products.map((product) => {
             const price = buildProductPrice(product, product.materials, product.packaging, defaults);
             return (
@@ -84,10 +81,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 <td className="px-4 py-3 text-muted">{product.category?.name ?? "-"}</td>
                 <td className="px-4 py-3 text-muted">{formatCurrency(price.finalPrice)}</td>
                 <td className="px-4 py-3"><ActiveStateBadge active={product.active} /></td>
-                <td className="flex gap-2 px-4 py-3">
+                <td className="px-4 py-3"><div className="flex items-center gap-2">
                   <Link className="text-sm font-medium text-accent hover:underline" href={`/products/${product.id}`}>View</Link>
                   <ActiveStateForm action={setProductActiveStateAction} active={product.active} id={product.id} />
-                </td>
+                </div></td>
               </tr>
             );
           })}

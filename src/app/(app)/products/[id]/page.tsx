@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
@@ -6,10 +5,12 @@ import {
   createProductVariantAction,
   setProductMaterialActiveStateAction,
   setProductVariantActiveStateAction,
+  updateProductAction,
   updateProductVariantAction,
 } from "@/app/(app)/products/actions";
 import { ProductVariantForm } from "@/components/products/product-variant-form";
 import { MaterialCompositionForm } from "@/components/products/material-composition-form";
+import { ProductForm } from "@/components/products/product-form";
 import { PriceBreakdown } from "@/components/pricing/price-breakdown";
 import { DataTable } from "@/components/tables/data-table";
 import { ActiveStateBadge } from "@/components/ui/active-state-badge";
@@ -21,7 +22,8 @@ import { formatCurrency, formatQuantity } from "@/lib/formatting/currency";
 import { buildProductPrice } from "@/lib/pricing/build";
 import { parsePricingDefaults } from "@/lib/pricing/settings";
 import { listActivePr2Materials } from "@/lib/supabase/queries/materials";
-import { listPr2Units } from "@/lib/supabase/queries/lookups";
+import { listPr2ProductCategories, listPr2Units } from "@/lib/supabase/queries/lookups";
+import { listActivePr2Packaging } from "@/lib/supabase/queries/packaging";
 import { getPr2Product } from "@/lib/supabase/queries/products";
 import { getPr2Setting } from "@/lib/supabase/queries/settings";
 import { createClient } from "@/lib/supabase/server";
@@ -38,11 +40,20 @@ type ProductDetailPageProps = { params: Promise<{ id: string }> };
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { id } = await params;
   const client = await createClient();
-  const [{ data, error }, { data: materials }, { data: units }, { data: pricingSetting }] = await Promise.all([
+  const [
+    { data, error },
+    { data: materials },
+    { data: units },
+    { data: pricingSetting },
+    { data: categories },
+    { data: allPackaging },
+  ] = await Promise.all([
     getPr2Product(client, id),
     listActivePr2Materials(client),
     listPr2Units(client),
     getPr2Setting(client, "pricing_defaults"),
+    listPr2ProductCategories(client),
+    listActivePr2Packaging(client),
   ]);
   if (error || !data) notFound();
 
@@ -52,11 +63,9 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        actions={<Link className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-surface px-4 text-sm font-medium shadow-sm hover:bg-zinc-50" href={`/products/${product.id}/edit`}>Edit</Link>}
-        title={product.name}
-      />
+      <PageHeader title={product.name} />
       <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+        <div className="space-y-4">
         <Card>
           <div className="flex items-start gap-4">
             <div className="size-20 overflow-hidden rounded-md border border-border bg-zinc-50">
@@ -69,6 +78,14 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             </div>
           </div>
         </Card>
+        <ProductForm
+          action={updateProductAction.bind(null, product.id)}
+          categories={categories ?? []}
+          compact
+          packaging={allPackaging ?? []}
+          product={product}
+        />
+        </div>
         <PriceBreakdown breakdown={breakdown} />
       </div>
       <div className="space-y-4">

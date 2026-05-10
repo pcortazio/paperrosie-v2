@@ -5,12 +5,12 @@ import { setPackagingActiveStateAction } from "@/app/(app)/packaging/actions";
 import { DataTable } from "@/components/tables/data-table";
 import { FilterBar } from "@/components/tables/filter-bar";
 import { SearchInput } from "@/components/tables/search-input";
+import { ShowInactiveToggle } from "@/components/tables/show-inactive-toggle";
 import { ActiveStateBadge } from "@/components/ui/active-state-badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ImageThumb } from "@/components/ui/image-thumb";
 import { PageHeader } from "@/components/ui/page-header";
-import { Select } from "@/components/ui/select";
 import { calculateSuggestedPrice } from "@/lib/calculations/pricing";
 import { formatCurrency } from "@/lib/formatting/currency";
 import { buildPackagingPrice } from "@/lib/pricing/build";
@@ -46,16 +46,12 @@ export default async function PackagingPage({ searchParams }: PackagingPageProps
       <form>
         <FilterBar>
           <SearchInput defaultValue={search} placeholder="Search packaging" />
-          <Select defaultValue={activeState} name="activeState">
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="all">All</option>
-          </Select>
+          <ShowInactiveToggle defaultChecked={activeState === "all"} />
           <Button type="submit" variant="secondary">Apply</Button>
         </FilterBar>
       </form>
       {packaging.length ? (
-        <DataTable columns={["Image", "Packaging", "Suggested price", "Active", "Actions"]}>
+        <DataTable columns={["Image", "Packaging", "Suggested price", "State", "Actions"]}>
           {packaging.map((item) => {
             const packagingCost = buildPackagingPrice(item, item.materials);
             const suggested = calculateSuggestedPrice({
@@ -74,10 +70,10 @@ export default async function PackagingPage({ searchParams }: PackagingPageProps
                 <td className="px-4 py-3 font-medium"><Link className="hover:text-accent" href={`/packaging/${item.id}`}>{item.name}</Link></td>
                 <td className="px-4 py-3 text-muted">{formatCurrency(suggested.finalPrice)}</td>
                 <td className="px-4 py-3"><ActiveStateBadge active={item.active} /></td>
-                <td className="flex gap-2 px-4 py-3">
+                <td className="px-4 py-3"><div className="flex items-center gap-2">
                   <Link className="text-sm font-medium text-accent hover:underline" href={`/packaging/${item.id}`}>View</Link>
                   <ActiveStateForm action={setPackagingActiveStateAction} active={item.active} id={item.id} />
-                </td>
+                </div></td>
               </tr>
             );
           })}

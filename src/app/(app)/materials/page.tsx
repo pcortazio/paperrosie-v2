@@ -4,12 +4,13 @@ import { ActiveStateForm } from "@/components/forms/active-state-form";
 import { DataTable } from "@/components/tables/data-table";
 import { FilterBar } from "@/components/tables/filter-bar";
 import { SearchInput } from "@/components/tables/search-input";
+import { ShowInactiveToggle } from "@/components/tables/show-inactive-toggle";
 import { ActiveStateBadge } from "@/components/ui/active-state-badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { Select } from "@/components/ui/select";
-import { StatusBadge } from "@/components/ui/status-badge";
+import { StockIndicator } from "@/components/ui/stock-indicator";
 import { setMaterialActiveStateAction } from "@/app/(app)/materials/actions";
 import { formatCurrency, formatQuantity } from "@/lib/formatting/currency";
 import { firstParam, type PageSearchParams } from "@/lib/routing/search-params";
@@ -105,11 +106,7 @@ export default async function MaterialsPage({ searchParams }: MaterialsPageProps
             <option value="low">Low stock</option>
             <option value="in_stock">In stock</option>
           </Select>
-          <Select defaultValue={activeState} name="activeState">
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="all">All</option>
-          </Select>
+          <ShowInactiveToggle defaultChecked={activeState === "all"} />
           <Button type="submit" variant="secondary">
             Apply
           </Button>
@@ -124,7 +121,7 @@ export default async function MaterialsPage({ searchParams }: MaterialsPageProps
             "Unit",
             "Reference cost",
             "Preferred supplier",
-            "Status",
+            "State",
             "Actions",
           ]}
         >
@@ -142,7 +139,7 @@ export default async function MaterialsPage({ searchParams }: MaterialsPageProps
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <span>{formatQuantity(material.current_stock)}</span>
-                    {lowStock ? <StatusBadge tone="warning">Low stock</StatusBadge> : null}
+                    <StockIndicator low={lowStock} />
                   </div>
                 </td>
                 <td className="px-4 py-3 text-muted">{material.unit?.abbreviation ?? "—"}</td>
@@ -155,7 +152,8 @@ export default async function MaterialsPage({ searchParams }: MaterialsPageProps
                 <td className="px-4 py-3">
                   <ActiveStateBadge active={material.active} />
                 </td>
-                <td className="flex gap-2 px-4 py-3">
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
                   <Link className="text-sm font-medium text-accent hover:underline" href={`/materials/${material.id}`}>
                     View
                   </Link>
@@ -170,6 +168,7 @@ export default async function MaterialsPage({ searchParams }: MaterialsPageProps
                     active={material.active}
                     id={material.id}
                   />
+                  </div>
                 </td>
               </tr>
             );

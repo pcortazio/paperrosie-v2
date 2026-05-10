@@ -5,11 +5,11 @@ import { ActiveStateForm } from "@/components/forms/active-state-form";
 import { DataTable } from "@/components/tables/data-table";
 import { FilterBar } from "@/components/tables/filter-bar";
 import { SearchInput } from "@/components/tables/search-input";
+import { ShowInactiveToggle } from "@/components/tables/show-inactive-toggle";
 import { ActiveStateBadge } from "@/components/ui/active-state-badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
-import { Select } from "@/components/ui/select";
 import { firstParam, type PageSearchParams } from "@/lib/routing/search-params";
 import { listPr2Customers } from "@/lib/supabase/queries/customers";
 import { createClient } from "@/lib/supabase/server";
@@ -33,16 +33,12 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
       <form>
         <FilterBar>
           <SearchInput defaultValue={search} placeholder="Search customers" />
-          <Select defaultValue={activeState} name="activeState">
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="all">All</option>
-          </Select>
+          <ShowInactiveToggle defaultChecked={activeState === "all"} />
           <Button type="submit" variant="secondary">Apply</Button>
         </FilterBar>
       </form>
       {data?.length ? (
-        <DataTable columns={["Name", "Company", "Email", "Phone", "Active", "Actions"]}>
+        <DataTable columns={["Name", "Company", "Email", "Phone", "State", "Actions"]}>
           {data.map((customer) => (
             <tr key={customer.id}>
               <td className="px-4 py-3 font-medium">{customer.name}</td>
@@ -50,10 +46,10 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
               <td className="px-4 py-3 text-muted">{customer.email ?? "-"}</td>
               <td className="px-4 py-3 text-muted">{customer.phone ?? "-"}</td>
               <td className="px-4 py-3"><ActiveStateBadge active={customer.active} /></td>
-              <td className="flex gap-2 px-4 py-3">
+              <td className="px-4 py-3"><div className="flex items-center gap-2">
                 <Link className="text-sm font-medium text-accent hover:underline" href={`/customers/${customer.id}/edit`}>Edit</Link>
                 <ActiveStateForm action={setCustomerActiveStateAction} active={customer.active} id={customer.id} />
-              </td>
+              </div></td>
             </tr>
           ))}
         </DataTable>

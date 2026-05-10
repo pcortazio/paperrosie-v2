@@ -1,7 +1,5 @@
 "use client";
 
-import { SubmitButton } from "@/components/forms/submit-button";
-
 type ActiveStateFormProps = {
   action: (formData: FormData) => void | Promise<void>;
   active: boolean;
@@ -24,9 +22,12 @@ export function ActiveStateForm({ action, active, id }: ActiveStateFormProps) {
     >
       <input name="id" type="hidden" value={id} />
       <input name="active" type="hidden" value={active ? "false" : "true"} />
-      <SubmitButton pendingLabel={active ? "Deactivating" : "Reactivating"}>
+      <button
+        className="inline-flex h-8 items-center rounded-lg px-2.5 text-sm font-medium text-muted hover:bg-zinc-50 hover:text-foreground"
+        type="submit"
+      >
         {active ? "Deactivate" : "Reactivate"}
-      </SubmitButton>
+      </button>
     </form>
   );
 }

@@ -12,20 +12,20 @@ type SuppliersSettingsSectionProps = {
 
 export function SuppliersSettingsSection({ action, suppliers }: SuppliersSettingsSectionProps) {
   return (
-    <Card className="space-y-4">
+    <Card className="space-y-3 p-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-base font-medium">Suppliers</h2>
-        <Link className="text-sm font-medium text-accent hover:underline" href="/suppliers/new">
+        <h2 className="text-sm font-semibold">Suppliers</h2>
+        <Link className="text-sm font-medium text-muted hover:text-accent" href="/suppliers/new">
           New supplier
         </Link>
       </div>
-      <div className="divide-y divide-border rounded-md border border-border">
+      <div className="divide-y divide-border rounded-xl border border-border/80 bg-zinc-50/30">
         {suppliers.map((supplier) => (
-          <div className="grid items-center gap-3 p-3 sm:grid-cols-[1fr_auto_auto_auto]" key={supplier.id}>
+          <div className="grid items-center gap-3 p-2 sm:grid-cols-[1fr_auto_auto_auto]" key={supplier.id}>
             <span className="text-sm font-medium">{supplier.name}</span>
             <ActiveStateBadge active={supplier.active} />
             <Link
-              className="text-sm font-medium text-accent hover:underline"
+              className="text-sm font-medium text-muted hover:text-accent"
               href={`/suppliers/${supplier.id}/edit`}
             >
               Edit
