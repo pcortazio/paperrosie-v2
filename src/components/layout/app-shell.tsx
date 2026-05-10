@@ -12,7 +12,7 @@ export function AppShell({ children }: AppShellProps) {
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen">
         <Sidebar />
-        <main className="min-w-0 flex-1 px-4 pb-24 pt-5 sm:px-6 lg:px-8 lg:pb-8">
+        <main className="min-w-0 flex-1 px-4 pb-24 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pb-8">
           <div className="mx-auto w-full max-w-7xl">{children}</div>
         </main>
       </div>

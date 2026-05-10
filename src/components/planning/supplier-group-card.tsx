@@ -12,9 +12,9 @@ export function SupplierGroupCard({ group }: SupplierGroupCardProps) {
   return (
     <Card className="p-0">
       <details open>
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 hover:bg-zinc-50/70">
           <div>
-            <h2 className="text-base font-medium">{group.supplierName}</h2>
+            <h2 className="text-sm font-semibold">{group.supplierName}</h2>
             <p className="mt-1 text-sm text-muted">
               {group.items.length} material{group.items.length === 1 ? "" : "s"} needing purchase
             </p>

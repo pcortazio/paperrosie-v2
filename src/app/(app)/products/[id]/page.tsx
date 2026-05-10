@@ -72,18 +72,19 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         <PriceBreakdown breakdown={breakdown} />
       </div>
       <div className="space-y-4">
-        <details className="rounded-lg border border-border bg-surface p-4" open>
-          <summary className="cursor-pointer text-sm font-medium">Overview</summary>
+        <details className="rounded-xl border border-border/90 bg-surface p-4 shadow-[0_1px_2px_rgba(0,0,0,0.025)]" open>
+          <summary className="cursor-pointer text-sm font-semibold">Overview</summary>
           <div className="mt-4 text-sm text-muted">Default packaging: {product.packaging?.name ?? "-"}</div>
         </details>
-        <details className="rounded-lg border border-border bg-surface p-4" open>
-          <summary className="cursor-pointer text-sm font-medium">Variants</summary>
+        <details className="rounded-xl border border-border/90 bg-surface p-4 shadow-[0_1px_2px_rgba(0,0,0,0.025)]" open>
+          <summary className="cursor-pointer text-sm font-semibold">Variants</summary>
           <div className="mt-4 space-y-3">
             <ProductVariantForm action={createProductVariantAction.bind(null, product.id)} />
             {product.variants.map((variant) => (
-              <details className="rounded-md border border-border p-3" key={variant.id}>
+              <details className="rounded-xl border border-border/90 bg-zinc-50/40 p-3" key={variant.id}>
                 <summary className="cursor-pointer text-sm font-medium">
-                  {variant.name} {!variant.active ? "(inactive)" : ""}
+                  <span>{variant.name}</span>
+                  {!variant.active ? <span className="ml-2 text-muted">(inactive)</span> : null}
                 </summary>
                 <div className="mt-3 space-y-3">
                   <ProductVariantForm action={updateProductVariantAction.bind(null, product.id, variant.id)} variant={variant} />
@@ -98,8 +99,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             ))}
           </div>
         </details>
-        <details className="rounded-lg border border-border bg-surface p-4" open>
-          <summary className="cursor-pointer text-sm font-medium">Materials</summary>
+        <details className="rounded-xl border border-border/90 bg-surface p-4 shadow-[0_1px_2px_rgba(0,0,0,0.025)]" open>
+          <summary className="cursor-pointer text-sm font-semibold">Materials</summary>
           <div className="mt-4 space-y-3">
             <MaterialCompositionForm action={addProductMaterialAction.bind(null, product.id)} materials={materials ?? []} units={units ?? []} variants={product.variants} />
             {product.materials.length ? (
@@ -129,12 +130,12 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             ) : <EmptyState title="No materials added" />}
           </div>
         </details>
-        <details className="rounded-lg border border-border bg-surface p-4" open>
-          <summary className="cursor-pointer text-sm font-medium">Pricing</summary>
+        <details className="rounded-xl border border-border/90 bg-surface p-4 shadow-[0_1px_2px_rgba(0,0,0,0.025)]" open>
+          <summary className="cursor-pointer text-sm font-semibold">Pricing</summary>
           <div className="mt-4 max-w-md"><PriceBreakdown breakdown={breakdown} /></div>
         </details>
-        <details className="rounded-lg border border-border bg-surface p-4">
-          <summary className="cursor-pointer text-sm font-medium">Packaging</summary>
+        <details className="rounded-xl border border-border/90 bg-surface p-4 shadow-[0_1px_2px_rgba(0,0,0,0.025)]">
+          <summary className="cursor-pointer text-sm font-semibold">Packaging</summary>
           <div className="mt-4 text-sm text-muted">{product.packaging?.name ?? "No default packaging"}</div>
         </details>
       </div>

@@ -9,7 +9,7 @@ export function PurchaseSuggestionCard({ label, value }: PurchaseSuggestionCardP
   return (
     <Card className="p-4">
       <p className="text-xs font-medium uppercase tracking-normal text-muted">{label}</p>
-      <p className="mt-2 text-xl font-semibold text-foreground">{value}</p>
+      <p className="mt-2 text-lg font-semibold leading-7 text-foreground">{value}</p>
     </Card>
   );
 }

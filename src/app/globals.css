@@ -5,8 +5,10 @@
   --foreground: #222222;
   --surface: #ffffff;
   --border: #ececec;
-  --muted: #666666;
-  --accent: #f05a8a;
+  --muted: #6b6b6b;
+  --accent: #f45f92;
+  --surface-soft: #fbfbfb;
+  --ring: rgba(244, 95, 146, 0.16);
 }
 
 @theme inline {
@@ -16,14 +18,22 @@
   --color-border: var(--border);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
+  --color-surface-soft: var(--surface-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  text-rendering: geometricPrecision;
 }
 
 button,
@@ -31,4 +41,29 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+a,
+button,
+summary,
+input,
+select,
+textarea {
+  transition-duration: 150ms;
+  transition-property: background-color, border-color, color, opacity, box-shadow, transform;
+  transition-timing-function: ease;
+}
+
+label {
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+label > span {
+  color: #444444;
+}
+
+::selection {
+  background: rgba(244, 95, 146, 0.16);
 }

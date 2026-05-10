@@ -12,7 +12,7 @@ type MaterialCompositionFormProps = {
 
 export function MaterialCompositionForm({ action, materials, units, variants }: MaterialCompositionFormProps) {
   return (
-    <form action={action} className="grid gap-3 rounded-md border border-border bg-zinc-50 p-3 lg:grid-cols-5">
+    <form action={action} className="grid gap-3 rounded-xl border border-border/90 bg-zinc-50/70 p-3 lg:grid-cols-5">
       <Select name="material_id" required>
         <option value="">Material</option>
         {materials.map((material) => (

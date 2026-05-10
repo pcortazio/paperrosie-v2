@@ -16,7 +16,7 @@ export function MobileBottomNav() {
   return (
     <nav
       aria-label="Mobile navigation"
-      className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-surface/95 px-2 pb-2 pt-1 shadow-[0_-1px_8px_rgba(0,0,0,0.04)] backdrop-blur lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-20 border-t border-border/90 bg-surface/95 px-2 pb-2 pt-1 shadow-[0_-8px_24px_rgba(0,0,0,0.045)] backdrop-blur lg:hidden"
     >
       <div className="grid grid-cols-5 gap-1">
         {primaryMobileItems.map((item) => {
@@ -26,8 +26,8 @@ export function MobileBottomNav() {
           return (
             <Link
               className={cn(
-                "flex h-14 flex-col items-center justify-center gap-1 rounded-md text-[11px] font-medium text-muted transition-colors hover:bg-zinc-50",
-                active && "text-accent",
+                "flex h-[52px] flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-medium text-muted transition-colors hover:bg-zinc-50",
+                active && "bg-accent/10 text-accent",
               )}
               href={item.href}
               key={item.href}
