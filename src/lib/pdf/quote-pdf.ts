@@ -1,4 +1,4 @@
-import PDFDocument from "pdfkit";
+import PDFDocument from "pdfkit/js/pdfkit.standalone.js";
 
 import { formatCurrency } from "@/lib/formatting/currency";
 import type {
