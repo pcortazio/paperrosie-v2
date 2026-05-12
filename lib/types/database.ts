@@ -91,6 +91,7 @@ export interface Product {
   steps: string | null;
   ingredients: ProductIngredient[];
   active: boolean;
+  variant_of: string | null;
   saved_at: string | null;
   updated_at: string;
 }
@@ -179,7 +180,7 @@ export interface QuoteItem {
   total: number;
 }
 
-export type QuoteStatus = "orcamento" | "aprovado" | "recusado" | "expirado";
+export type QuoteStatus = "orcamento" | "aprovado" | "recusado" | "expirado" | "convertido";
 
 export interface Quote {
   id: string;

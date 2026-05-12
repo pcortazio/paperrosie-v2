@@ -22,13 +22,15 @@ const STATUS_LABELS: Record<QuoteStatus, string> = {
   aprovado: "Aprovado",
   recusado: "Recusado",
   expirado: "Expirado",
+  convertido: "Convertido",
 };
 
-const STATUS_COLORS: Record<QuoteStatus, "blue" | "green" | "gray" | "amber"> = {
+const STATUS_COLORS: Record<QuoteStatus, "blue" | "green" | "gray" | "amber" | "purple"> = {
   orcamento: "blue",
   aprovado: "green",
   recusado: "gray",
   expirado: "amber",
+  convertido: "purple",
 };
 
 function fmtDate(d: string | null) {
@@ -251,6 +253,7 @@ export default function QuotesView() {
     setConverting(q.id);
     await supabase.from("pr_orders").insert({
       date: new Date().toISOString().slice(0, 10),
+      due_date: q.expiry || null,
       client_id: q.client_id,
       client_name: q.client_name,
       status: "novo",
@@ -264,6 +267,7 @@ export default function QuotesView() {
       total: q.total,
       notes: q.message || null,
     });
+    await supabase.from("pr_quotes").update({ status: "convertido" }).eq("id", q.id);
     setConverting(null);
     load();
   }
@@ -312,7 +316,7 @@ export default function QuotesView() {
           </div>
           <select className={tp.filterSelect} value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
             <option value="">Todos os status</option>
-            {(["orcamento", "aprovado", "recusado", "expirado"] as QuoteStatus[]).map((s) => (
+            {(["orcamento", "aprovado", "recusado", "expirado", "convertido"] as QuoteStatus[]).map((s) => (
               <option key={s} value={s}>{STATUS_LABELS[s]}</option>
             ))}
           </select>

@@ -42,7 +42,7 @@
 
 .title {
   font-family: var(--font-heading);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--rs-color-foreground-neutral);
   letter-spacing: -0.02em;
@@ -78,6 +78,18 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--rose) 55%, transparent) transparent;
+}
+
+.body::-webkit-scrollbar { width: 5px; }
+.body::-webkit-scrollbar-track { background: transparent; }
+.body::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--rose) 55%, transparent);
+  border-radius: 99px;
+}
+.body::-webkit-scrollbar-thumb:hover {
+  background: var(--rose);
 }
 
 .footer {
@@ -103,7 +115,7 @@
 }
 
 .label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--rs-color-foreground-muted);
   text-transform: uppercase;
@@ -118,7 +130,7 @@
   border: 1px solid var(--rs-color-border-neutral);
   border-radius: var(--radius-xs);
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--rs-color-foreground-neutral);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -149,7 +161,7 @@
 }
 
 .sectionTitle {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -167,7 +179,7 @@
   border: 1px solid var(--rs-color-border-neutral);
   border-radius: var(--radius-xs);
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--rs-color-foreground-muted);
   cursor: pointer;
@@ -185,7 +197,7 @@
   border: none;
   border-radius: var(--radius-xs);
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--rs-color-background-primary);
   cursor: pointer;

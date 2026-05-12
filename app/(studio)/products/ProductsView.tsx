@@ -32,6 +32,7 @@ const EMPTY_FORM = {
   notes: "",
   steps: "",
   ingredients: [] as IngredientRow[],
+  variant_of: "",
 };
 type FormData = typeof EMPTY_FORM;
 
@@ -103,6 +104,7 @@ export default function ProductsView() {
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState("");
   const [filterActive, setFilterActive] = useState("active");
+  const [filterVariants, setFilterVariants] = useState<"all" | "base" | "variants">("all");
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
@@ -127,6 +129,15 @@ export default function ProductsView() {
 
   const computed = computeCosts(form, settings);
   const productCats = settings?.dropdowns?.product_cats ?? [];
+
+  // Map: base product id → number of variants
+  const variantCounts = products.reduce<Record<string, number>>((acc, p) => {
+    if (p.variant_of) acc[p.variant_of] = (acc[p.variant_of] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  // Base product currently being shown in the modal (when creating a variant)
+  const baseProduct = form.variant_of ? products.find((p) => p.id === form.variant_of) : null;
 
   function openNew() {
     setEditing(null);
@@ -161,6 +172,34 @@ export default function ProductsView() {
         unit_cost: ing.unit_cost,
         qty: ing.qty.toString(),
       })),
+      variant_of: prod.variant_of ?? "",
+    });
+    dialogRef.current?.showModal();
+  }
+
+  function openVariant(base: Product) {
+    setEditing(null);
+    setForm({
+      name: base.name + " — ",
+      cat: base.cat ?? "",
+      mins: base.mins?.toString() ?? "",
+      hourly: base.hourly?.toString() ?? "",
+      packaging_id: "",
+      pack: base.pack?.toString() ?? "",
+      ship: base.ship?.toString() ?? "",
+      other: base.other?.toString() ?? "",
+      price: base.price?.toString() ?? "",
+      margin_target: base.margin?.toFixed(1) ?? settings?.margin?.toString() ?? "",
+      notes: base.notes ?? "",
+      steps: base.steps ?? "",
+      ingredients: (base.ingredients ?? []).map((ing) => ({
+        material_id: ing.material_id,
+        name: ing.name,
+        unit: ing.unit,
+        unit_cost: ing.unit_cost,
+        qty: ing.qty.toString(),
+      })),
+      variant_of: base.id,
     });
     dialogRef.current?.showModal();
   }
@@ -213,7 +252,11 @@ export default function ProductsView() {
   async function save() {
     if (!form.name.trim()) return;
     setSaving(true);
-    const c = computeCosts(form, settings);
+    // If no price entered, fall back to suggested price so margin/profit are computed correctly
+    const effectiveForm = form.price.trim()
+      ? form
+      : { ...form, price: computeCosts(form, settings).suggestedPrice?.toFixed(2) ?? "" };
+    const c = computeCosts(effectiveForm, settings);
     const price = c.price || null;
     const payload = {
       name: form.name.trim(),
@@ -244,7 +287,11 @@ export default function ProductsView() {
     if (editing) {
       await supabase.from("pr_products").update(payload).eq("id", editing.id);
     } else {
-      await supabase.from("pr_products").insert({ ...payload, active: true });
+      await supabase.from("pr_products").insert({
+        ...payload,
+        active: true,
+        variant_of: form.variant_of || null,
+      });
     }
     setSaving(false);
     closeModal();
@@ -263,7 +310,10 @@ export default function ProductsView() {
     const matchSearch = !q || p.name.toLowerCase().includes(q) || (p.cat ?? "").toLowerCase().includes(q);
     const matchCat = !filterCat || p.cat === filterCat;
     const matchActive = filterActive === "all" || (filterActive === "active" ? p.active : !p.active);
-    return matchSearch && matchCat && matchActive;
+    const matchVariants =
+      filterVariants === "all" ||
+      (filterVariants === "base" ? !p.variant_of : !!p.variant_of);
+    return matchSearch && matchCat && matchActive && matchVariants;
   });
 
   return (
@@ -300,6 +350,11 @@ export default function ProductsView() {
             <option value="active">Ativos</option>
             <option value="inactive">Inativos</option>
           </select>
+          <select className={tp.filterSelect} value={filterVariants} onChange={(e) => setFilterVariants(e.target.value as "all" | "base" | "variants")}>
+            <option value="all">Bases + variantes</option>
+            <option value="base">Só bases</option>
+            <option value="variants">Só variantes</option>
+          </select>
         </div>
 
         <div className={tp.tableWrap}>
@@ -327,7 +382,25 @@ export default function ProductsView() {
               <tbody>
                 {visible.map((prod) => (
                   <tr key={prod.id} className={tp.tr}>
-                    <td className={tp.td}><span className={tp.cellName}>{prod.name}</span></td>
+                    <td className={tp.td}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        {prod.variant_of && (
+                          <span style={{ color: "var(--rs-color-foreground-disabled)", flexShrink: 0 }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: "middle" }}>subdirectory_arrow_right</span>
+                          </span>
+                        )}
+                        <span className={tp.cellName}>{prod.name}</span>
+                        {!prod.variant_of && (variantCounts[prod.id] ?? 0) > 0 && (
+                          <Badge
+                            label={`${variantCounts[prod.id]} variante${variantCounts[prod.id] !== 1 ? "s" : ""}`}
+                            color="blue"
+                          />
+                        )}
+                        {prod.variant_of && (
+                          <Badge label="variante" color="gray" />
+                        )}
+                      </div>
+                    </td>
                     <td className={tp.td}>
                       {prod.cat
                         ? <Badge label={prod.cat} color="purple" />
@@ -346,6 +419,15 @@ export default function ProductsView() {
                         <button className={tp.btnIcon} onClick={() => openEdit(prod)} title="Editar">
                           <span className="material-symbols-outlined">edit</span>
                         </button>
+                        {!prod.variant_of && (
+                          <button
+                            className={tp.btnIcon}
+                            onClick={() => openVariant(prod)}
+                            title="Criar variante"
+                          >
+                            <span className="material-symbols-outlined">call_split</span>
+                          </button>
+                        )}
                         <button
                           className={tp.btnIcon}
                           onClick={() => toggleActive(prod)}
@@ -368,11 +450,31 @@ export default function ProductsView() {
       {/* Modal */}
       <dialog ref={dialogRef} className={m.dialog} style={{ maxWidth: 640 }}>
         <div className={m.header}>
-          <span className={m.title}>{editing ? "Editar produto" : "Novo produto"}</span>
+          <span className={m.title}>
+            {editing
+              ? (editing.variant_of ? "Editar variante" : "Editar produto")
+              : (form.variant_of ? "Nova variante" : "Novo produto")}
+          </span>
           <button type="button" className={m.closeBtn} onClick={closeModal}>
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
+
+        {baseProduct && (
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "8px 24px",
+            background: "var(--rs-color-background-secondary)",
+            borderBottom: "1px solid var(--rs-color-border-neutral)",
+            fontSize: 13,
+            color: "var(--rs-color-foreground-muted)",
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 16, color: "var(--rs-color-foreground-disabled)" }}>subdirectory_arrow_right</span>
+            Variante de <strong style={{ color: "var(--rs-color-foreground-neutral)", marginLeft: 4 }}>{baseProduct.name}</strong>
+          </div>
+        )}
 
         <div className={m.body}>
           {/* ── Informações básicas ── */}

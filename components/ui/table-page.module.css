@@ -15,7 +15,7 @@
 
 .heading {
   font-family: var(--font-heading);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--rs-color-foreground-neutral);
   flex: 1;
@@ -55,7 +55,7 @@
   border: 1px solid var(--rs-color-border-neutral);
   border-radius: var(--radius-sm);
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--rs-color-foreground-neutral);
   outline: none;
   transition: border-color 0.15s;
@@ -76,7 +76,7 @@
   border: 1px solid var(--rs-color-border-neutral);
   border-radius: var(--radius-sm);
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--rs-color-foreground-muted);
   outline: none;
   cursor: pointer;
@@ -99,7 +99,7 @@
   border: none;
   border-radius: var(--radius-sm);
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.15s;
@@ -122,7 +122,7 @@
   border: 1px solid var(--rs-color-border-neutral);
   border-radius: var(--radius-xs);
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -175,7 +175,7 @@
 .th {
   padding: 11px 16px;
   text-align: left;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -197,7 +197,7 @@
 
 .td {
   padding: 12px 16px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--rs-color-foreground-neutral);
   vertical-align: middle;
 }
