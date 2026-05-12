@@ -1,0 +1,46 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.green {
+  background: var(--rs-color-background-positive);
+  color: var(--rs-color-foreground-positive);
+}
+
+.amber {
+  background: var(--rs-color-background-caution);
+  color: var(--rs-color-foreground-caution);
+}
+
+.red {
+  background: var(--rs-color-background-critical);
+  color: var(--rs-color-foreground-critical);
+}
+
+.blue {
+  background: var(--rs-color-background-informative);
+  color: var(--rs-color-foreground-informative);
+}
+
+.purple {
+  background: #f0ebf8;
+  color: #6c5b98;
+}
+
+[data-rs-color-mode="dark"] .purple {
+  background: #251d3f;
+  color: #b7a5f5;
+}
+
+.gray {
+  background: var(--rs-color-background-secondary);
+  color: var(--rs-color-foreground-muted);
+}

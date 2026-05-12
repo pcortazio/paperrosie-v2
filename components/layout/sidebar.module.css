@@ -1,0 +1,171 @@
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+
+.sidebar {
+  width: 256px;
+  flex-shrink: 0;
+  background: var(--rs-color-background-primary);
+  border-right: 1px solid var(--rs-color-border-neutral);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow: hidden;
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 50;
+}
+
+.sidebar.collapsed {
+  width: 72px;
+}
+
+/* ── Logo ── */
+
+.logo {
+  padding: 24px 16px 20px;
+  border-bottom: 1px solid var(--rs-color-border-neutral);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 76px;
+  justify-content: center;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.collapsed .logo {
+  align-items: center;
+}
+
+.logoIcon {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--rs-color-foreground-neutral);
+  letter-spacing: -0.01em;
+}
+
+.logoName {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--rs-color-foreground-neutral);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.logoSub {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--rs-color-foreground-disabled);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* ── Nav ── */
+
+.nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px 10px 16px;
+}
+
+.group {
+  margin-bottom: 4px;
+}
+
+.groupLabel {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--rs-color-foreground-disabled);
+  font-weight: 600;
+  padding: 12px 10px 4px;
+  white-space: nowrap;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--rs-color-foreground-muted);
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+  margin-bottom: 2px;
+  text-decoration: none;
+}
+
+.item:hover {
+  background: var(--rs-color-background-secondary);
+  color: var(--rs-color-foreground-neutral);
+}
+
+.item.active {
+  background: var(--rs-color-background-primary-alpha);
+  color: var(--rs-color-foreground-primary);
+  font-weight: 600;
+}
+
+.collapsed .item {
+  justify-content: center;
+  padding: 10px;
+}
+
+.icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.label {
+  line-height: 1.2;
+  overflow: hidden;
+}
+
+/* ── Collapse button ── */
+
+.collapseBtn {
+  padding: 14px 10px;
+  border-top: 1px solid var(--rs-color-border-neutral);
+  display: flex;
+  justify-content: flex-end;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  cursor: pointer;
+  color: var(--rs-color-foreground-disabled);
+  transition: color 0.15s;
+}
+
+.collapseBtn:hover {
+  color: var(--rs-color-foreground-neutral);
+}
+
+.collapsed .collapseBtn {
+  justify-content: center;
+}
+
+.collapseBtn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+/* Hide on mobile — bottom nav takes over */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+}

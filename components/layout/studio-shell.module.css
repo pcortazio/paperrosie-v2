@@ -1,0 +1,22 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main {
+  margin-left: 256px;
+  flex: 1;
+  min-width: 0;
+  transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shell.collapsed .main {
+  margin-left: 72px;
+}
+
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0 !important;
+    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
+  }
+}

@@ -1,0 +1,212 @@
+/* HTML <dialog> based modal */
+
+/* Guarantee closed dialogs are always hidden (position: fixed can override browser default) */
+.dialog:not([open]) {
+  display: none;
+}
+
+.dialog {
+  /* Center in viewport regardless of parent layout (sidebar margin) */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  padding: 0;
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  background: var(--rs-color-background-primary);
+  width: calc(100vw - 48px);
+  max-width: 520px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Native dialog backdrop */
+.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(4px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--rs-color-border-neutral);
+  flex-shrink: 0;
+  gap: 12px;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--rs-color-foreground-neutral);
+  letter-spacing: -0.02em;
+  flex: 1;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-xs);
+  color: var(--rs-color-foreground-disabled);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.closeBtn:hover {
+  background: var(--rs-color-background-secondary);
+  color: var(--rs-color-foreground-neutral);
+}
+
+.closeBtn .material-symbols-outlined { font-size: 18px !important; }
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--rs-color-border-neutral);
+  flex-shrink: 0;
+}
+
+/* Form fields inside modal */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rs-color-foreground-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  background: var(--rs-color-background-secondary);
+  border: 1px solid var(--rs-color-border-neutral);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--rs-color-foreground-neutral);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input,
+.select {
+  height: 38px;
+  padding: 0 11px;
+}
+
+.textarea {
+  padding: 9px 11px;
+  resize: vertical;
+  min-height: 72px;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--rs-color-foreground-disabled);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: var(--rose);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--rose) 12%, transparent);
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--rs-color-foreground-disabled);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--rs-color-border-neutral);
+  margin-top: 4px;
+}
+
+/* Buttons inside footer */
+.btnCancel {
+  height: 36px;
+  padding: 0 16px;
+  background: transparent;
+  border: 1px solid var(--rs-color-border-neutral);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--rs-color-foreground-muted);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btnCancel:hover {
+  background: var(--rs-color-background-secondary);
+}
+
+.btnSave {
+  height: 36px;
+  padding: 0 20px;
+  background: var(--rs-color-foreground-neutral);
+  border: none;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rs-color-background-primary);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btnSave:hover:not(:disabled) { opacity: 0.85; }
+.btnSave:disabled { opacity: 0.5; cursor: not-allowed; }
+
+@media (max-width: 540px) {
+  .dialog {
+    /* Bottom sheet on mobile */
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--radius) var(--radius) 0 0;
+    max-height: 92vh;
+  }
+  .fieldRow { grid-template-columns: 1fr; }
+}

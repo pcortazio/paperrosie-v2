@@ -1,0 +1,8 @@
+.content {
+  padding: 28px 28px 36px;
+}
+
+.placeholder {
+  color: var(--rs-color-foreground-disabled);
+  font-size: 14px;
+}

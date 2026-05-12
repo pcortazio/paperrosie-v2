@@ -1,0 +1,207 @@
+/* Dashboard layout */
+
+.page {
+  padding: 24px 28px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ── Metric cards ── */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.card {
+  background: var(--rs-color-background-primary);
+  border: 1px solid var(--rs-color-border-neutral);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--shadow-sm);
+}
+
+.cardLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--rs-color-foreground-disabled);
+}
+
+.cardValue {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--rs-color-foreground-neutral);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.cardSub {
+  font-size: 12px;
+  color: var(--rs-color-foreground-muted);
+  margin-top: 2px;
+}
+
+.cardAccent {
+  width: 28px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--rose);
+  margin-bottom: 4px;
+}
+
+/* ── Two-column grid ── */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 14px;
+  align-items: start;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── Section panels ── */
+.panel {
+  background: var(--rs-color-background-primary);
+  border: 1px solid var(--rs-color-border-neutral);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--rs-color-border-neutral);
+  background: var(--rs-color-background-secondary);
+}
+
+.panelTitle {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--rs-color-foreground-muted);
+}
+
+.panelCount {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rs-color-foreground-disabled);
+  background: var(--rs-color-background-tertiary);
+  border-radius: 99px;
+  padding: 1px 8px;
+}
+
+/* ── Table inside panel ── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.th {
+  padding: 9px 18px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--rs-color-foreground-disabled);
+  border-bottom: 1px solid var(--rs-color-border-neutral);
+  white-space: nowrap;
+}
+
+.tr {
+  border-bottom: 1px solid var(--rs-color-border-neutral);
+  transition: background 0.1s;
+}
+
+.tr:last-child { border-bottom: none; }
+.tr:hover { background: var(--rs-color-background-secondary); }
+
+.td {
+  padding: 11px 18px;
+  font-size: 13px;
+  color: var(--rs-color-foreground-neutral);
+  vertical-align: middle;
+}
+
+.tdMuted {
+  color: var(--rs-color-foreground-muted);
+}
+
+.tdBold {
+  font-weight: 600;
+}
+
+/* ── Simple list items ── */
+.listItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--rs-color-border-neutral);
+  font-size: 13px;
+  gap: 12px;
+}
+
+.listItem:last-child { border-bottom: none; }
+
+.listItemName {
+  font-weight: 500;
+  color: var(--rs-color-foreground-neutral);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.listItemSub {
+  font-size: 12px;
+  color: var(--rs-color-foreground-muted);
+  flex-shrink: 0;
+}
+
+/* ── Empty ── */
+.emptyPanel {
+  padding: 28px 18px;
+  text-align: center;
+  color: var(--rs-color-foreground-disabled);
+  font-size: 13px;
+}
+
+/* ── Loading ── */
+.loading {
+  padding: 60px 28px;
+  text-align: center;
+  color: var(--rs-color-foreground-disabled);
+  font-size: 14px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .page { padding: 16px 16px 32px; }
+  .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .cardValue { font-size: 22px; }
+}
