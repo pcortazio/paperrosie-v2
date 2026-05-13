@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Material, Purchase, PurchaseStatus, Settings, Supplier } from "@/lib/types/database";
+import { sortWithOutroLast } from "@/lib/sort";
 import Badge from "@/components/ui/Badge";
 import tp from "@/components/ui/table-page.module.css";
 import m from "@/components/ui/modal.module.css";
@@ -19,7 +20,7 @@ type ItemRow = {
 };
 
 const EMPTY_FORM = {
-  date: new Date().toISOString().slice(0, 10),
+  date: todayDisplay(),
   supplier_id: "",
   status: "planejada" as PurchaseStatus,
   payment_method: "",
@@ -45,6 +46,23 @@ function fmtDate(d: string | null) {
   if (!d) return "—";
   const [y, mo, day] = d.split("-");
   return `${day}/${mo}/${y}`;
+}
+
+function toDisplay(iso: string): string {
+  if (!iso) return "";
+  const [y, mo, day] = iso.split("-");
+  return `${day}/${mo}/${y}`;
+}
+
+function fromDisplay(d: string): string {
+  if (!d) return "";
+  const [day, mo, y] = d.split("/");
+  if (!day || !mo || !y || y.length < 4) return "";
+  return `${y}-${mo.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
+function todayDisplay() {
+  return toDisplay(new Date().toISOString().slice(0, 10));
 }
 
 function fmtCA$(n: number | null | undefined) {
@@ -102,12 +120,12 @@ export default function PurchasesView() {
 
   useEffect(() => { load(); }, [load]);
 
-  const paymentMethods = settings?.dropdowns?.payment_methods ?? [];
+  const paymentMethods = sortWithOutroLast(settings?.dropdowns?.payment_methods ?? []);
   const total = computeTotal(form.items, form.shipping);
 
   function openNew() {
     setEditing(null);
-    setForm(EMPTY_FORM);
+    setForm({ ...EMPTY_FORM, date: todayDisplay() });
     setMatSearch("");
     setShowMatPicker(false);
     dialogRef.current?.showModal();
@@ -116,7 +134,7 @@ export default function PurchasesView() {
   function openEdit(p: Purchase) {
     setEditing(p);
     setForm({
-      date: p.date ?? new Date().toISOString().slice(0, 10),
+      date: p.date ? toDisplay(p.date) : todayDisplay(),
       supplier_id: p.supplier_id ?? "",
       status: p.status,
       payment_method: p.payment_method ?? "",
@@ -171,7 +189,7 @@ export default function PurchasesView() {
     setSaving(true);
     const itemsTotal = computeTotal(form.items, form.shipping);
     const payload = {
-      date: form.date || null,
+      date: fromDisplay(form.date) || null,
       supplier_id: form.supplier_id || null,
       status: form.status,
       payment_method: form.payment_method || null,
@@ -323,7 +341,7 @@ export default function PurchasesView() {
           <div className={m.fieldRow}>
             <div className={m.field}>
               <label className={m.label}>Data</label>
-              <input className={m.input} type="date" value={form.date} onChange={f("date")} />
+              <input className={m.input} type="text" placeholder="dd/mm/yyyy" maxLength={10} value={form.date} onChange={f("date")} />
             </div>
             <div className={m.field}>
               <label className={m.label}>Status</label>

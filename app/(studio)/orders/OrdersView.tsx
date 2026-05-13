@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Client, Order, OrderStatus, Product, Settings } from "@/lib/types/database";
+import { sortWithOutroLast } from "@/lib/sort";
 import Badge from "@/components/ui/Badge";
 import tp from "@/components/ui/table-page.module.css";
 import m from "@/components/ui/modal.module.css";
@@ -41,6 +42,19 @@ function fmtDate(d: string | null) {
   return `${day}/${mo}/${y}`;
 }
 
+function toDisplay(iso: string): string {
+  if (!iso) return "";
+  const [y, mo, day] = iso.split("-");
+  return `${day}/${mo}/${y}`;
+}
+
+function fromDisplay(d: string): string {
+  if (!d) return "";
+  const [day, mo, y] = d.split("/");
+  if (!day || !mo || !y || y.length < 4) return "";
+  return `${y}-${mo.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
 function fmtCA$(n: number | null | undefined) {
   if (n == null) return "—";
   return `CA$${n.toFixed(2).replace(".", ",")}`;
@@ -50,8 +64,12 @@ function rowTotal(item: ItemRow) {
   return Math.round((parseFloat(item.qty) || 0) * (parseFloat(item.price) || 0) * 100) / 100;
 }
 
+function todayDisplay() {
+  return toDisplay(new Date().toISOString().slice(0, 10));
+}
+
 const EMPTY_FORM = {
-  date: new Date().toISOString().slice(0, 10),
+  date: todayDisplay(),
   due_date: "",
   client_id: "",
   client_name: "",
@@ -98,26 +116,27 @@ export default function OrdersView() {
 
   useEffect(() => { load(); }, [load]);
 
-  const channels = settings?.dropdowns?.client_channels ?? [];
+  const channels = sortWithOutroLast(settings?.dropdowns?.client_channels ?? []);
+  const shippingMethods = sortWithOutroLast(settings?.dropdowns?.shipping_methods ?? []);
   const total = form.items.reduce((s, i) => s + rowTotal(i), 0);
 
   function openNew() {
     setEditing(null);
-    setForm({ ...EMPTY_FORM, date: new Date().toISOString().slice(0, 10) });
+    setForm({ ...EMPTY_FORM, date: todayDisplay() });
     dialogRef.current?.showModal();
   }
 
   function openEdit(o: Order) {
     setEditing(o);
     setForm({
-      date: o.date ?? new Date().toISOString().slice(0, 10),
-      due_date: o.due_date ?? "",
+      date: o.date ? toDisplay(o.date) : todayDisplay(),
+      due_date: o.due_date ? toDisplay(o.due_date) : "",
       client_id: o.client_id ?? "",
       client_name: o.client_name ?? "",
       origin: o.origin ?? "",
       status: o.status,
       shipping_type: o.shipping_type ?? "",
-      ship_date: o.ship_date ?? "",
+      ship_date: o.ship_date ? toDisplay(o.ship_date) : "",
       tracking: o.tracking ?? "",
       notes: o.notes ?? "",
       items: (o.items ?? []).map((i) => ({
@@ -188,14 +207,14 @@ export default function OrdersView() {
     setSaving(true);
     const orderTotal = Math.round(form.items.reduce((s, i) => s + rowTotal(i), 0) * 100) / 100;
     const payload = {
-      date: form.date || null,
-      due_date: form.due_date || null,
+      date: fromDisplay(form.date) || null,
+      due_date: fromDisplay(form.due_date) || null,
       client_id: form.client_id || null,
       client_name: form.client_name || null,
       origin: form.origin || null,
       status: form.status,
       shipping_type: form.shipping_type || null,
-      ship_date: form.ship_date || null,
+      ship_date: fromDisplay(form.ship_date) || null,
       tracking: form.tracking || null,
       notes: form.notes || null,
       total: orderTotal,
@@ -339,11 +358,11 @@ export default function OrdersView() {
           <div className={m.fieldRow}>
             <div className={m.field}>
               <label className={m.label}>Data</label>
-              <input className={m.input} type="date" value={form.date} onChange={f("date")} />
+              <input className={m.input} type="text" placeholder="dd/mm/yyyy" maxLength={10} value={form.date} onChange={f("date")} />
             </div>
             <div className={m.field}>
               <label className={m.label}>Prazo de entrega</label>
-              <input className={m.input} type="date" value={form.due_date} onChange={f("due_date")} />
+              <input className={m.input} type="text" placeholder="dd/mm/yyyy" maxLength={10} value={form.due_date} onChange={f("due_date")} />
             </div>
             <div className={m.field}>
               <label className={m.label}>Status</label>
@@ -495,19 +514,28 @@ export default function OrdersView() {
           <div className={m.sectionTitle}>Envio</div>
           <div className={m.fieldRow}>
             <div className={m.field}>
-              <label className={m.label}>Tipo de envio</label>
-              <input
-                className={m.input}
-                value={form.shipping_type}
-                onChange={f("shipping_type")}
-                placeholder="Ex: Correios PAC, Motoboy…"
-              />
+              <label className={m.label}>Forma de envio</label>
+              {shippingMethods.length > 0 ? (
+                <select className={m.select} value={form.shipping_type} onChange={f("shipping_type")}>
+                  <option value="">—</option>
+                  {shippingMethods.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              ) : (
+                <input
+                  className={m.input}
+                  value={form.shipping_type}
+                  onChange={f("shipping_type")}
+                  placeholder="Ex: Correios PAC, Motoboy…"
+                />
+              )}
             </div>
             <div className={m.field}>
               <label className={m.label}>Data de envio</label>
               <input
                 className={m.input}
-                type="date"
+                type="text"
+                placeholder="dd/mm/yyyy"
+                maxLength={10}
                 value={form.ship_date}
                 onChange={f("ship_date")}
                 disabled={!isShipped}

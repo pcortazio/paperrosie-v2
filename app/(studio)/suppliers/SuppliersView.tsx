@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Supplier, Settings } from "@/lib/types/database";
+import { sortWithOutroLast } from "@/lib/sort";
 import Badge from "@/components/ui/Badge";
 import tp from "@/components/ui/table-page.module.css";
 import m from "@/components/ui/modal.module.css";
@@ -264,7 +265,7 @@ export default function SuppliersView() {
               {(settings?.dropdowns?.supplier_types ?? []).length > 0 ? (
                 <select className={m.select} value={form.type} onChange={f("type")}>
                   <option value="">—</option>
-                  {(settings?.dropdowns?.supplier_types ?? []).map((t) => (
+                  {sortWithOutroLast(settings?.dropdowns?.supplier_types ?? []).map((t) => (
                     <option key={t} value={t}>{t}</option>
                   ))}
                 </select>

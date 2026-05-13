@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Material, Packaging, Product, Settings } from "@/lib/types/database";
+import { sortWithOutroLast } from "@/lib/sort";
 import Badge from "@/components/ui/Badge";
 import tp from "@/components/ui/table-page.module.css";
 import m from "@/components/ui/modal.module.css";
@@ -25,7 +26,6 @@ const EMPTY_FORM = {
   hourly: "",
   packaging_id: "",
   pack: "",
-  ship: "",
   other: "",
   price: "",
   margin_target: "",
@@ -50,7 +50,6 @@ type Computed = {
   materialCost: number;
   laborCost: number;
   packCost: number;
-  shipCost: number;
   otherCost: number;
   listingFee: number;
   transFee: number;
@@ -72,7 +71,6 @@ function computeCosts(form: FormData, settings: Settings["data"] | null): Comput
   const laborCost = (mins / 60) * hourly;
 
   const packCost = parseFloat(form.pack) || 0;
-  const shipCost = parseFloat(form.ship) || 0;
   const otherCost = parseFloat(form.other) || 0;
 
   const price = parseFloat(form.price) || 0;
@@ -80,18 +78,18 @@ function computeCosts(form: FormData, settings: Settings["data"] | null): Comput
   const transFee = price * ((settings?.trans ?? 0) / 100);
   const paymentFee = price * ((settings?.payment ?? 0) / 100);
 
-  const totalCost = materialCost + laborCost + packCost + shipCost + otherCost + listingFee + transFee + paymentFee;
+  const totalCost = materialCost + laborCost + packCost + otherCost + listingFee + transFee + paymentFee;
   const profit = price > 0 ? price - totalCost : null;
   const margin = price > 0 && profit != null ? (profit / price) * 100 : null;
 
   // Suggested price for target margin (accounting for %-based fees)
   const marginTarget = parseFloat(form.margin_target) / 100 || 0;
   const pctFees = ((settings?.trans ?? 0) + (settings?.payment ?? 0)) / 100;
-  const baseCost = materialCost + laborCost + packCost + shipCost + otherCost + listingFee;
+  const baseCost = materialCost + laborCost + packCost + otherCost + listingFee;
   const denominator = 1 - pctFees - marginTarget;
   const suggestedPrice = baseCost > 0 && denominator > 0.01 ? baseCost / denominator : null;
 
-  return { materialCost, laborCost, packCost, shipCost, otherCost, listingFee, transFee, paymentFee, totalCost, price, profit, margin, suggestedPrice };
+  return { materialCost, laborCost, packCost, otherCost, listingFee, transFee, paymentFee, totalCost, price, profit, margin, suggestedPrice };
 }
 
 export default function ProductsView() {
@@ -128,7 +126,7 @@ export default function ProductsView() {
   useEffect(() => { load(); }, [load]);
 
   const computed = computeCosts(form, settings);
-  const productCats = settings?.dropdowns?.product_cats ?? [];
+  const productCats = sortWithOutroLast(settings?.dropdowns?.product_cats ?? []);
 
   // Map: base product id → number of variants
   const variantCounts = products.reduce<Record<string, number>>((acc, p) => {
@@ -159,7 +157,6 @@ export default function ProductsView() {
       hourly: prod.hourly?.toString() ?? "",
       packaging_id: "",
       pack: prod.pack?.toString() ?? "",
-      ship: prod.ship?.toString() ?? "",
       other: prod.other?.toString() ?? "",
       price: prod.price?.toString() ?? "",
       margin_target: prod.margin?.toFixed(1) ?? settings?.margin?.toString() ?? "",
@@ -186,7 +183,6 @@ export default function ProductsView() {
       hourly: base.hourly?.toString() ?? "",
       packaging_id: "",
       pack: base.pack?.toString() ?? "",
-      ship: base.ship?.toString() ?? "",
       other: base.other?.toString() ?? "",
       price: base.price?.toString() ?? "",
       margin_target: base.margin?.toFixed(1) ?? settings?.margin?.toString() ?? "",
@@ -265,7 +261,6 @@ export default function ProductsView() {
       mins: form.mins ? +form.mins : null,
       hourly: form.hourly ? +form.hourly : null,
       pack: form.pack ? +form.pack : null,
-      ship: form.ship ? +form.ship : null,
       other: form.other ? +form.other : null,
       listing: c.listingFee,
       trans: c.transFee,
@@ -624,12 +619,6 @@ export default function ProductsView() {
               />
             </div>
           </div>
-          <div className={m.fieldRow}>
-            <div className={m.field}>
-              <label className={m.label}>Envio (CA$)</label>
-              <input className={m.input} type="number" min={0} step="any" value={form.ship} onChange={f("ship")} placeholder="0" />
-            </div>
-          </div>
           <div className={m.field}>
             <label className={m.label}>Outros custos (CA$)</label>
             <input className={m.input} type="number" min={0} step="any" value={form.other} onChange={f("other")} placeholder="0" />
@@ -801,13 +790,12 @@ function CostBreakdown({
   computed: Computed;
   settings: Settings["data"] | null;
 }) {
-  const { materialCost, laborCost, packCost, shipCost, otherCost, listingFee, transFee, paymentFee, totalCost, profit, margin } = computed;
+  const { materialCost, laborCost, packCost, otherCost, listingFee, transFee, paymentFee, totalCost, profit, margin } = computed;
 
   const rows = [
     { label: "Materiais", value: materialCost },
     { label: "Mão de obra", value: laborCost },
     { label: "Embalagem", value: packCost },
-    { label: "Envio", value: shipCost },
     { label: "Outros", value: otherCost },
     { label: `Listing (CA$ fixo)`, value: listingFee },
     { label: `Transação (${settings?.trans ?? 0}%)`, value: transFee },

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Material, Supplier } from "@/lib/types/database";
+import type { Material, Settings, Supplier } from "@/lib/types/database";
+import { sortWithOutroLast } from "@/lib/sort";
 
 type SupplierOption = Pick<Supplier, "id" | "name">;
 import Badge from "@/components/ui/Badge";
@@ -31,6 +32,7 @@ export default function MaterialsView() {
   const supabase = createClient();
   const [materials, setMaterials] = useState<Material[]>([]);
   const [suppliers, setSuppliers] = useState<SupplierOption[]>([]);
+  const [settings, setSettings] = useState<Settings["data"] | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState("");
@@ -42,16 +44,20 @@ export default function MaterialsView() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [{ data: mats }, { data: sups }] = await Promise.all([
+    const [{ data: mats }, { data: sups }, { data: sets }] = await Promise.all([
       supabase.from("pr_materials").select("*").order("name"),
       supabase.from("pr_suppliers").select("id,name").eq("active", true).order("name"),
+      supabase.from("pr_settings").select("data").eq("id", "main").single(),
     ]);
     setMaterials(mats ?? []);
     setSuppliers(sups ?? []);
+    setSettings((sets?.data as Settings["data"]) ?? null);
     setLoading(false);
   }, [supabase]);
 
   useEffect(() => { load(); }, [load]);
+
+  const materialCats = sortWithOutroLast(settings?.dropdowns?.material_cats ?? []);
 
   // Auto-calculate unit cost from price and qty
   const unitCost =
@@ -250,7 +256,14 @@ export default function MaterialsView() {
 
           <div className={m.field}>
             <label className={m.label}>Categoria</label>
-            <input className={m.input} value={form.cat} onChange={f("cat")} placeholder="Ex: Papel, Tecido…" />
+            {materialCats.length > 0 ? (
+              <select className={m.select} value={form.cat} onChange={f("cat")}>
+                <option value="">—</option>
+                {materialCats.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            ) : (
+              <input className={m.input} value={form.cat} onChange={f("cat")} placeholder="Ex: Papel, Tecido…" />
+            )}
           </div>
 
           <div className={m.sectionTitle}>Estoque e custo</div>
@@ -270,7 +283,7 @@ export default function MaterialsView() {
 
           <div className={m.fieldRow}>
             <div className={m.field}>
-              <label className={m.label}>Preço pago (CA$)</label>
+              <label className={m.label}>Preço pago (CA$, sem frete)</label>
               <input className={m.input} type="number" value={form.price} onChange={f("price")} min={0} step="any" placeholder="0.00" />
             </div>
             <div className={m.field}>

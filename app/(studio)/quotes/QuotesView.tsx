@@ -50,6 +50,19 @@ function addDays(dateStr: string, days: number) {
   return d.toISOString().slice(0, 10);
 }
 
+function toEnDisplay(iso: string): string {
+  if (!iso) return "";
+  const [y, mo, day] = iso.split("-");
+  return `${mo}/${day}/${y}`;
+}
+
+function fromEnDisplay(d: string): string {
+  if (!d) return "";
+  const [mo, day, y] = d.split("/");
+  if (!mo || !day || !y || y.length < 4) return "";
+  return `${y}-${mo.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
 function rowTotal(item: ItemRow) {
   return Math.round((parseFloat(item.qty) || 0) * (parseFloat(item.price) || 0) * 100) / 100;
 }
@@ -63,8 +76,8 @@ function makeEmptyForm(settings: Settings["data"] | null): FormData {
   const today = new Date().toISOString().slice(0, 10);
   const validityDays = settings?.quote_validity_days ?? 30;
   return {
-    date: today,
-    expiry: addDays(today, validityDays),
+    date: toEnDisplay(today),
+    expiry: toEnDisplay(addDays(today, validityDays)),
     client_id: "",
     client_name: "",
     status: "orcamento",
@@ -137,8 +150,8 @@ export default function QuotesView() {
   function openEdit(q: Quote) {
     setEditing(q);
     setForm({
-      date: q.date ?? new Date().toISOString().slice(0, 10),
-      expiry: q.expiry ?? "",
+      date: q.date ? toEnDisplay(q.date) : toEnDisplay(new Date().toISOString().slice(0, 10)),
+      expiry: q.expiry ? toEnDisplay(q.expiry) : "",
       client_id: q.client_id ?? "",
       client_name: q.client_name ?? "",
       status: q.status,
@@ -204,8 +217,8 @@ export default function QuotesView() {
     if (form.items.length === 0) return;
     setSaving(true);
     const payload = {
-      date: form.date || null,
-      expiry: form.expiry || null,
+      date: fromEnDisplay(form.date) || null,
+      expiry: fromEnDisplay(form.expiry) || null,
       client_id: form.client_id || null,
       client_name: form.client_name || null,
       status: form.status,
@@ -418,11 +431,11 @@ export default function QuotesView() {
           <div className={m.fieldRow}>
             <div className={m.field}>
               <label className={m.label}>Data</label>
-              <input className={m.input} type="date" value={form.date} onChange={f("date")} />
+              <input className={m.input} type="text" placeholder="mm/dd/yyyy" maxLength={10} value={form.date} onChange={f("date")} />
             </div>
             <div className={m.field}>
               <label className={m.label}>Válido até</label>
-              <input className={m.input} type="date" value={form.expiry} onChange={f("expiry")} />
+              <input className={m.input} type="text" placeholder="mm/dd/yyyy" maxLength={10} value={form.expiry} onChange={f("expiry")} />
             </div>
             <div className={m.field}>
               <label className={m.label}>Status</label>

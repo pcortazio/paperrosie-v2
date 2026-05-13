@@ -202,6 +202,7 @@ export interface SettingsDropdowns {
   product_cats: string[];
   client_channels: string[];
   payment_methods: string[];
+  shipping_methods: string[];
 }
 
 export interface SettingsData {

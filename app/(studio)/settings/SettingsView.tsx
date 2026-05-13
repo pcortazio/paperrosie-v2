@@ -19,6 +19,7 @@ const DEFAULT_SETTINGS: SettingsData = {
     product_cats: ["Caderno", "Agenda", "Bloco", "Acessório", "Kit", "Outro"],
     client_channels: ["Etsy", "Instagram", "Whatsapp", "Indicação", "Loja", "Outro"],
     payment_methods: ["Pix", "Cartão", "Boleto", "Dinheiro", "Transferência"],
+    shipping_methods: ["Correios PAC", "Correios SEDEX", "Motoboy", "Retirada", "Outro"],
   },
 };
 
@@ -254,6 +255,11 @@ export default function SettingsView() {
             label="Formas de pagamento"
             items={data.dropdowns.payment_methods}
             onChange={(v) => setDropdown("payment_methods", v)}
+          />
+          <EditableList
+            label="Formas de envio"
+            items={data.dropdowns.shipping_methods ?? []}
+            onChange={(v) => setDropdown("shipping_methods", v)}
           />
         </div>
       </section>

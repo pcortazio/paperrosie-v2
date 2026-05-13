@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Client, Settings } from "@/lib/types/database";
+import { sortWithOutroLast } from "@/lib/sort";
 import Badge from "@/components/ui/Badge";
 import tp from "@/components/ui/table-page.module.css";
 import m from "@/components/ui/modal.module.css";
@@ -205,7 +206,7 @@ export default function ClientsView() {
               {(settings?.dropdowns?.client_channels ?? []).length > 0 ? (
                 <select className={m.select} value={form.channel} onChange={f("channel")}>
                   <option value="">—</option>
-                  {(settings?.dropdowns?.client_channels ?? []).map((ch) => (
+                  {sortWithOutroLast(settings?.dropdowns?.client_channels ?? []).map((ch) => (
                     <option key={ch} value={ch}>{ch}</option>
                   ))}
                 </select>
