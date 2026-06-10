@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { calculateUnitCost } from "@/lib/costing";
 import type { Material, Supplier } from "@/lib/types/database";
 
 type SupplierOption = Pick<Supplier, "id" | "name">;
@@ -9,7 +10,7 @@ import Badge from "@/components/ui/Badge";
 import tp from "@/components/ui/table-page.module.css";
 import m from "@/components/ui/modal.module.css";
 
-const UNITS = ["un", "g", "kg", "ml", "L", "cm", "m", "folha", "rolo", "par", "kit"];
+const UNITS = ["un", "cm", "in", "in²", "g", "ml", "folha", "rolo", "par", "kit"];
 
 const EMPTY_FORM = {
   name: "", cat: "", price: "", qty: "", unit: "un", notes: "",
@@ -54,10 +55,10 @@ export default function MaterialsView() {
   useEffect(() => { load(); }, [load]);
 
   // Auto-calculate unit cost from price and qty
-  const unitCost =
-    form.price && form.qty && +form.qty > 0
-      ? +form.price / +form.qty
-      : null;
+  const unitCost = calculateUnitCost(
+    form.price ? +form.price : null,
+    form.qty ? +form.qty : null
+  );
 
   function openNew() {
     setEditing(null);
@@ -106,7 +107,7 @@ export default function MaterialsView() {
       price,
       qty,
       unit: form.unit || null,
-      unit_cost: price && qty && qty > 0 ? Math.round((price / qty) * 100) / 100 : null,
+      unit_cost: calculateUnitCost(price, qty),
       notes: form.notes || null,
       supplier_ids: form.supplier_ids,
     };
@@ -210,7 +211,7 @@ export default function MaterialsView() {
                       {mat.cat ? <Badge label={mat.cat} color="gray" /> : <span className={tp.tdMuted}>—</span>}
                     </td>
                     <td className={`${tp.td} ${tp.tdMuted}`}>{fmtQty(mat.qty, mat.unit)}</td>
-                    <td className={`${tp.td} ${tp.tdMuted}`}>{fmtCurrency(mat.unit_cost)}</td>
+                    <td className={`${tp.td} ${tp.tdMuted}`}>{fmtCurrency(calculateUnitCost(mat.price, mat.qty) ?? mat.unit_cost)}</td>
                     <td className={tp.td}>
                       <Badge label={mat.active ? "Ativo" : "Inativo"} color={mat.active ? "green" : "amber"} />
                     </td>
@@ -278,7 +279,7 @@ export default function MaterialsView() {
               <input
                 className={m.input}
                 readOnly
-                value={unitCost != null ? `CA$${unitCost.toFixed(2)}` : "—"}
+                value={fmtCurrency(unitCost)}
                 style={{ background: "var(--rs-color-background-tertiary)", cursor: "default" }}
               />
             </div>

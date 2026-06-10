@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { calculateUnitCost } from "@/lib/costing";
 import type { Material, Packaging, Product, Settings } from "@/lib/types/database";
 import Badge from "@/components/ui/Badge";
 import tp from "@/components/ui/table-page.module.css";
 import m from "@/components/ui/modal.module.css";
 
-type MaterialOption = Pick<Material, "id" | "name" | "unit" | "unit_cost">;
+type MaterialOption = Pick<Material, "id" | "name" | "unit" | "unit_cost" | "price" | "qty">;
 type PackagingOption = Pick<Packaging, "id" | "name" | "cost">;
 
 type IngredientRow = {
@@ -44,6 +45,10 @@ function R$(n: number | null | undefined) {
 function fmtMargin(n: number | null | undefined) {
   if (n == null) return "—";
   return `${n.toFixed(1).replace(".", ",")}%`;
+}
+
+function materialUnitCost(mat: MaterialOption) {
+  return calculateUnitCost(mat.price, mat.qty) ?? mat.unit_cost;
 }
 
 type Computed = {
@@ -114,7 +119,7 @@ export default function ProductsView() {
     setLoading(true);
     const [{ data: prods }, { data: mats }, { data: packs }, { data: sets }] = await Promise.all([
       supabase.from("pr_products").select("*").order("name"),
-      supabase.from("pr_materials").select("id,name,unit,unit_cost").eq("active", true).order("name"),
+      supabase.from("pr_materials").select("id,name,unit,unit_cost,price,qty").eq("active", true).order("name"),
       supabase.from("pr_packaging").select("id,name,cost").order("name"),
       supabase.from("pr_settings").select("data").eq("id", "main").single(),
     ]);
@@ -231,7 +236,7 @@ export default function ProductsView() {
           material_id: mat.id,
           name: mat.name,
           unit: mat.unit ?? "un",
-          unit_cost: mat.unit_cost ?? 0,
+          unit_cost: materialUnitCost(mat) ?? 0,
           qty: "1",
         },
       ],
@@ -761,6 +766,8 @@ function MatPickerSection({
 
 function MatPickerRow({ mat, onAdd }: { mat: MaterialOption; onAdd: (m: MaterialOption) => void }) {
   const [hover, setHover] = useState(false);
+  const unitCost = materialUnitCost(mat);
+
   return (
     <button
       type="button"
@@ -786,8 +793,8 @@ function MatPickerRow({ mat, onAdd }: { mat: MaterialOption; onAdd: (m: Material
     >
       <span>{mat.name}</span>
       <span style={{ fontSize: 12, color: "var(--rs-color-foreground-disabled)" }}>
-        {mat.unit_cost != null
-          ? `CA$${mat.unit_cost.toFixed(2).replace(".", ",")}/${mat.unit ?? "un"}`
+        {unitCost != null
+          ? `CA$${unitCost.toFixed(2).replace(".", ",")}/${mat.unit ?? "un"}`
           : "sem custo"}
       </span>
     </button>
