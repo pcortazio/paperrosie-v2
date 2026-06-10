@@ -141,7 +141,7 @@ export default function MaterialsView() {
       <div className={tp.page}>
         <div className={tp.header}>
           <span className={tp.heading}>
-            {materials.length} material{materials.length !== 1 ? "is" : ""}
+           {materials.length} {materials.length === 1 ? "material" : "materials"}
           </span>
           <button className={tp.btnPrimary} onClick={openNew}>
             <span className="material-symbols-outlined">add</span>
